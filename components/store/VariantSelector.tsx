@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { useCartStore } from "@/store/useCartStore"
+import { trackAddToCart } from "@/lib/analytics"
 import NotifyMeForm from "@/components/store/NotifyMeForm"
 import SizeGuideModal from "@/components/store/SizeGuideModal"
 import SizeQuiz from "@/components/store/SizeQuiz"
@@ -52,6 +53,17 @@ export default function VariantSelector({
       color: selectedColor!,
       image,
       quantity: 1,
+    })
+
+    trackAddToCart({
+      productId: product.id,
+      variantSku: activeVariant.sku,
+      name: product.name,
+      price: Number(price),
+      quantity: 1,
+      size: selectedSize!,
+      color: selectedColor!,
+      category: product.category?.name,
     })
 
     toast.success(`Added to bag!`, {

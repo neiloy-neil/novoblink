@@ -108,7 +108,7 @@ export default function CheckoutForm({
         setAddress({ name: def.fullName, phone: def.phone, division: def.division, district: def.district, area: def.area, fullAddress: def.address })
         setExpressReady(true)
         setStep(2)
-        trackInitiateCheckout(0, 0)
+        trackInitiateCheckout({ value: 0, items: [] })
       })
       .catch(() => {})
   }, [userId])
@@ -149,7 +149,10 @@ export default function CheckoutForm({
   const handleSubmitStep1 = async (e: React.FormEvent) => {
     e.preventDefault()
     setStep(2)
-    trackInitiateCheckout(total, items.reduce((s, i) => s + i.quantity, 0))
+    trackInitiateCheckout({
+      value: total,
+      items: items.map((i) => ({ productId: i.productId, variantSku: i.variantId, name: i.name, price: i.price, quantity: i.quantity })),
+    })
     try {
       const res = await fetch("/api/store/deposit-check", {
         method: "POST",

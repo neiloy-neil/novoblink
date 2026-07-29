@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { trackCompleteRegistration } from "@/lib/analytics"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -62,6 +63,7 @@ export default function RegisterPage() {
       }
 
       if (data.session) {
+        trackCompleteRegistration()
         toast.success("Welcome to NovoBlink! 🎉")
         router.push("/account")
         router.refresh()

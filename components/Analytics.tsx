@@ -1,4 +1,6 @@
 import Script from "next/script"
+import { Suspense } from "react"
+import MetaPixelTracker from "@/components/MetaPixelTracker"
 import prisma from "@/lib/prisma"
 
 async function getTrackingSettings() {
@@ -36,6 +38,7 @@ export default async function Analytics() {
 
       {PIXEL_ID && (
         <>
+          {/* Init only — PageView fired by MetaPixelTracker on every route change */}
           <Script id="meta-pixel" strategy="afterInteractive">{`
             !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -43,12 +46,14 @@ export default async function Analytics() {
             t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
             document,'script','https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${PIXEL_ID}');
-            fbq('track', 'PageView');
           `}</Script>
           <noscript>
             <img height="1" width="1" style={{ display: "none" }}
               src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`} alt="" />
           </noscript>
+          <Suspense fallback={null}>
+            <MetaPixelTracker />
+          </Suspense>
         </>
       )}
 

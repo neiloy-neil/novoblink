@@ -18,6 +18,7 @@ import Link from "next/link"
 import { RecentlyViewedTracker } from "@/components/store/RecentlyViewedTracker"
 import { RecentlyViewed } from "@/components/store/RecentlyViewed"
 import FrequentlyBoughtTogether from "@/components/store/FrequentlyBoughtTogether"
+import ViewContentTracker from "@/components/store/ViewContentTracker"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://NovoBlink.com.bd"
 
@@ -303,6 +304,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <RecentlyViewed currentProductId={product.id} />
       </div>
 
+      <ViewContentTracker product={{
+        id: product.id,
+        name: product.name,
+        price: displayPrice,
+        category: product.category?.name,
+        sku: product.variants[0]?.sku,
+      }} />
       {/* Track this view */}
       <RecentlyViewedTracker product={{
         id: product.id,

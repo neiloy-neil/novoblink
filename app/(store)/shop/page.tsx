@@ -7,6 +7,7 @@ import Image from "next/image"
 import { getActiveFlashSaleBatch, applyFlashSaleDiscount } from "@/lib/flashSale"
 import ShopFilters from "@/components/store/ShopFilters"
 import ShopTopControls from "@/components/store/ShopTopControls"
+import SearchTracker from "@/components/store/SearchTracker"
 
 export default async function ShopPage({
   searchParams,
@@ -93,6 +94,7 @@ export default async function ShopPage({
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 animate-in fade-in duration-500">
+      {search && <SearchTracker query={search} />}
       {/* Top Bar */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-novo-border pb-6 mb-8 gap-4">
         <div>
