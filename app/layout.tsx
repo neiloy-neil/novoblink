@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const map = Object.fromEntries(settings.map((s) => [s.key, s.value]))
     if (map["meta_title"]) siteTitle = map["meta_title"]
     if (map["meta_description"]) siteDescription = map["meta_description"]
-    if (map["store_name"]) storeName = map["store_name"]
+    // storeName is always "NovoBlink" — shared DB has clothing store's value
   } catch { /* DB unavailable — use defaults */ }
 
   return {
@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${storeName}`,
     },
     description: siteDescription,
-    keywords: ["Bangladesh fashion", "clothing store", "online shopping BD", `${storeName} fashion`, "t-shirt", "kurti", "dress", "shirt Bangladesh"],
+    keywords: ["gadget store Bangladesh", "buy smartphone online BD", "laptop online Bangladesh", "earphones headphones BD", "smartwatch Bangladesh", "online shopping BD", `${storeName}`, "tech accessories Bangladesh"],
     authors: [{ name: storeName }],
     creator: storeName,
     openGraph: {
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: storeName,
       title: siteTitle,
       description: siteDescription,
-      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: `${storeName} Fashion` }],
+      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: `${storeName} — Tech That Moves You` }],
     },
     twitter: {
       card: "summary_large_image",

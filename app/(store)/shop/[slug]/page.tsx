@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const image = (product as any).ogImage || product.images[0]?.url
   const price = Number(product.price).toLocaleString()
   const title = (product as any).metaTitle || `${product.name} — ৳${price}`
-  const description = (product as any).metaDescription || product.description?.slice(0, 160) || `Shop ${product.name} at NovoBlink. Premium quality fashion from Bangladesh.`
+  const description = (product as any).metaDescription || product.description?.slice(0, 160) || `Shop ${product.name} at NovoBlink. Genuine products, fast delivery across Bangladesh.`
 
   return {
     title,
@@ -173,7 +173,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <span className="font-mono text-2xl font-bold">৳{displayPrice.toLocaleString()}</span>
                 {(product.comparePrice || (flashSale && Number(product.price) !== displayPrice)) && (
                   <span className="font-mono text-lg text-novo-text-muted line-through">
-                    ৳{Number(product.price).toLocaleString()}
+                    ৳{flashSale ? Number(product.price).toLocaleString() : Number(product.comparePrice).toLocaleString()}
                   </span>
                 )}
                 {flashSale && (

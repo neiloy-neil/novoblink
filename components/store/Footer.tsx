@@ -24,7 +24,7 @@ export default function Footer({
   const storeName = branding?.storeName || "NovoBlink"
   const storeDescription =
     branding?.storeDescription ||
-    "Modern Bangladeshi clothing for the bold and elegant. We blend minimal aesthetics with premium quality."
+    "Bangladesh's premier online gadget store — smartphones, laptops, audio, and accessories."
   const supportEmail = branding?.supportEmail || "support@NovoBlink.com.bd"
   const supportPhone = branding?.supportPhone || "+880 1700 000000"
   const socialFacebook = branding?.socialFacebook
