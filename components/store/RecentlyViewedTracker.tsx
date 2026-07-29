@@ -13,7 +13,7 @@ export function RecentlyViewedTracker({ product }: { product: RecentProduct }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ event: "product_view", productId: product.id, value: product.price }),
     }).catch(() => {})
-    trackViewContent(product.id, product.name, product.price)
+    trackViewContent({ id: product.id, name: product.name, price: product.price })
   }, [product.id])
   return null
 }
