@@ -42,12 +42,12 @@ export default async function StoreLayout({
   const freeShippingThreshold = settingsMap.free_shipping_above ? parseInt(settingsMap.free_shipping_above, 10) : 1000
 
   const branding = {
-    storeName: settingsMap.store_name || "NovoBlink",
-    storeTagline: settingsMap.store_tagline || "Wear Your Story",
+    storeName: "NovoBlink",
+    storeTagline: "Tech That Moves You",
     storeDescription:
       settingsMap.store_description ||
-      "Modern Bangladeshi clothing for the bold and elegant. We blend minimal aesthetics with premium quality.",
-    supportEmail: settingsMap.support_email || "support@NovoBlink.com.bd",
+      "Bangladesh's premier online gadget store — smartphones, laptops, audio, and accessories.",
+    supportEmail: settingsMap.support_email || "support@novoblink.com.bd",
     supportPhone: settingsMap.support_phone || "+880 1700 000000",
     socialFacebook: settingsMap.social_facebook || "",
     socialInstagram: settingsMap.social_instagram || "",
