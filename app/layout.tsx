@@ -13,8 +13,8 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-mono"
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://NovoBlink.com.bd"
 
 export async function generateMetadata(): Promise<Metadata> {
-  let siteTitle = "NovoBlink | Wear Your Story"
-  let siteDescription = "Modern Bangladeshi clothing brand. Shop premium t-shirts, shirts, dresses, kurtis and accessories. Free delivery above ৳1000."
+  let siteTitle = "NovoBlink | Tech That Moves You"
+  let siteDescription = "Bangladesh's premier online gadget store — smartphones, laptops, audio, and accessories. Free delivery above ৳1000."
   let storeName = "NovoBlink"
 
   try {
