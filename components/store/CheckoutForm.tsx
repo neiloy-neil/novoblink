@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useCartStore } from "@/store/useCartStore"
 import { useRouter } from "next/navigation"
 import { MapPin, CreditCard, ClipboardCheck, ChevronRight, Check, Gift, MessageSquare, User, Star, Wallet, Tag, Calendar, Users } from "lucide-react"
-import { trackInitiateCheckout } from "@/lib/analytics"
+import { trackInitiateCheckout, trackAddPaymentInfo } from "@/lib/analytics"
 
 type CheckoutField = {
   id: string
@@ -165,6 +165,7 @@ export default function CheckoutForm({
 
   const handleSubmitStep2 = (e: React.FormEvent) => {
     e.preventDefault()
+    trackAddPaymentInfo(total)
     setStep(3)
   }
 

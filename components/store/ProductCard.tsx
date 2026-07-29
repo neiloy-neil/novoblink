@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { Heart, ShoppingBag, Star } from "lucide-react"
 import { useWishlistStore } from "@/store/useWishlistStore"
+import { trackAddToWishlist } from "@/lib/analytics"
 import { toast } from "sonner"
 
 export default function ProductCard({
@@ -40,6 +41,9 @@ export default function ProductCard({
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
+    if (!wishlisted) {
+      trackAddToWishlist({ id: product.id, name: product.name, price: Number(product.price), category: product.category?.name })
+    }
     toggleItem({
       id: product.id,
       name: product.name,

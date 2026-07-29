@@ -120,6 +120,38 @@ export function trackSearch(query: string) {
   })
 }
 
+export function trackAddToWishlist(item: { id: string; name: string; price: number; category?: string }) {
+  if (typeof window === "undefined") return
+
+  window.gtag?.("event", "add_to_wishlist", {
+    currency: "BDT",
+    value: item.price,
+    items: [{ item_id: item.id, item_name: item.name, item_category: item.category, price: item.price }],
+  })
+
+  window.fbq?.("track", "AddToWishlist", {
+    content_ids: [item.id],
+    content_name: item.name,
+    content_category: item.category,
+    currency: "BDT",
+    value: item.price,
+  })
+}
+
+export function trackAddPaymentInfo(value: number) {
+  if (typeof window === "undefined") return
+
+  window.gtag?.("event", "add_payment_info", {
+    currency: "BDT",
+    value,
+  })
+
+  window.fbq?.("track", "AddPaymentInfo", {
+    currency: "BDT",
+    value,
+  })
+}
+
 export function trackCompleteRegistration() {
   if (typeof window === "undefined") return
 
