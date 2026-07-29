@@ -247,6 +247,23 @@ export function ReportsClient() {
           </CardContent>
         </Card>
 
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Sales by Division</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.salesByDivision} layout="vertical" margin={{ left: 16 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" tickFormatter={(v) => `৳${(v/1000).toFixed(0)}k`} />
+                <YAxis type="category" dataKey="division" width={80} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(v: any) => `৳${Number(v).toLocaleString()}`} />
+                <Bar dataKey="revenue" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
         <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Top 10 Products</CardTitle>

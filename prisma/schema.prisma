@@ -19,6 +19,7 @@ model User {
   image     String?
   phone     String?
   role      Role     @default(CUSTOMER)
+  isLocked  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -327,6 +328,7 @@ enum PaymentMethod {
   BKASH
   NAGAD
   COD
+  SSLCOMMERZ
 }
 
 enum PaymentStatus {

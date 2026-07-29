@@ -231,6 +231,16 @@ export default function CheckoutForm({
         if (!nagadRes.ok) throw new Error(nagadData.error)
         clearCart()
         window.location.href = nagadData.nagadURL
+      } else if (paymentMethod === "SSLCOMMERZ") {
+        const sslRes = await fetch("/api/payments/sslcommerz/init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: orderData.orderId }),
+        })
+        const sslData = await sslRes.json()
+        if (!sslRes.ok) throw new Error(sslData.error)
+        clearCart()
+        window.location.href = sslData.GatewayPageURL
       } else {
         // Apply referral reward if code was entered
         if (referralCode.trim() && orderData.orderId) {
@@ -411,6 +421,15 @@ export default function CheckoutForm({
                     <input type="radio" name="payment" value="NAGAD" checked={paymentMethod === "NAGAD"} onChange={() => setPaymentMethod("NAGAD")} className="w-4 h-4 accent-novo-black" />
                     <div className="ml-4">
                       <span className="font-bold block text-sm">Nagad</span>
+                    </div>
+                  </label>
+                )}
+                {enabledPaymentMethods.includes("SSLCOMMERZ") && (
+                  <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === "SSLCOMMERZ" ? "border-novo-black bg-novo-muted/20 shadow-sm" : "border-novo-border hover:border-novo-black/30"}`}>
+                    <input type="radio" name="payment" value="SSLCOMMERZ" checked={paymentMethod === "SSLCOMMERZ"} onChange={() => setPaymentMethod("SSLCOMMERZ")} className="w-4 h-4 accent-novo-black" />
+                    <div className="ml-4">
+                      <span className="font-bold block text-sm">Card / Online Banking</span>
+                      <span className="text-xs text-novo-text-muted">Visa, Mastercard, DBBL, Dutch-Bangla via SSLCommerz</span>
                     </div>
                   </label>
                 )}

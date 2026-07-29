@@ -46,6 +46,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
+  // Block locked accounts from store + account routes
+  if (user && !isAdminRoute) {
+    const isLocked = (user.app_metadata as { isLocked?: boolean } | undefined)?.isLocked
+    if (isLocked) {
+      return NextResponse.redirect(new URL("/login?locked=1", request.url))
+    }
+  }
+
   // Capture affiliate ref code — store in cookie for 30 days
   const refCode = request.nextUrl.searchParams.get("ref")
   if (refCode) {

@@ -30,6 +30,7 @@ type Customer = {
   email: string
   phone: string
   role: string
+  isLocked: boolean
   joinedDate: string
   totalOrders: number
   totalSpent: number
@@ -42,6 +43,26 @@ export function CustomerClient({ data }: { data: Customer[] }) {
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [customers, setCustomers] = useState<Customer[]>(data)
+  const [lockLoading, setLockLoading] = useState<string | null>(null)
+
+  const toggleLock = async (customer: Customer) => {
+    setLockLoading(customer.id)
+    try {
+      const res = await fetch("/api/admin/customers/lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: customer.id, lock: !customer.isLocked }),
+      })
+      if (!res.ok) throw new Error("Failed")
+      setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, isLocked: !c.isLocked } : c))
+      if (selectedCustomer?.id === customer.id) setSelectedCustomer(c => c ? { ...c, isLocked: !c.isLocked } : null)
+    } catch {
+      alert("Failed to update lock status")
+    } finally {
+      setLockLoading(null)
+    }
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,20 +95,21 @@ export function CustomerClient({ data }: { data: Customer[] }) {
               <TableHead>Joined / First Order</TableHead>
               <TableHead className="text-right">Orders</TableHead>
               <TableHead className="text-right">Total Spent</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
+            {customers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No customers found.
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((customer) => (
+              customers.map((customer) => (
                 <TableRow
                   key={customer.id}
-                  className="cursor-pointer hover:bg-neutral-100"
+                  className={`cursor-pointer hover:bg-neutral-100 ${customer.isLocked ? "opacity-60" : ""}`}
                   onClick={() => setSelectedCustomer(customer)}
                 >
                   <TableCell className="font-medium">{customer.name}</TableCell>
@@ -107,6 +129,16 @@ export function CustomerClient({ data }: { data: Customer[] }) {
                   <TableCell className="text-right">{customer.totalOrders}</TableCell>
                   <TableCell className="text-right font-medium">
                     ৳{customer.totalSpent.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right" onClick={e => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant={customer.isLocked ? "outline" : "destructive"}
+                      disabled={lockLoading === customer.id}
+                      onClick={() => toggleLock(customer)}
+                    >
+                      {lockLoading === customer.id ? "..." : customer.isLocked ? "Unlock" : "Lock"}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

@@ -28,7 +28,15 @@ export async function GET(req: Request) {
     // Orders
     const orders = await prisma.order.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        orderNumber: true,
+        createdAt: true,
+        status: true,
+        paymentMethod: true,
+        paymentStatus: true,
+        total: true,
+        shippingDivision: true,
         items: true,
       },
     })
@@ -46,17 +54,31 @@ export async function GET(req: Request) {
     })
 
     // Payment Method Pie Chart
-    let bkash = 0, nagad = 0, cod = 0
+    let bkash = 0, nagad = 0, cod = 0, ssl = 0
     orders.forEach((o) => {
       if (o.paymentMethod === "BKASH") bkash++
-      if (o.paymentMethod === "NAGAD") nagad++
-      if (o.paymentMethod === "COD") cod++
+      else if (o.paymentMethod === "NAGAD") nagad++
+      else if (o.paymentMethod === "SSLCOMMERZ") ssl++
+      else cod++
     })
     const paymentData = [
       { name: "bKash", value: bkash },
       { name: "Nagad", value: nagad },
       { name: "COD", value: cod },
-    ]
+      { name: "Card/SSL", value: ssl },
+    ].filter(d => d.value > 0)
+
+    // Sales by Division
+    const divisionMap: Record<string, { orders: number; revenue: number }> = {}
+    orders.forEach((o) => {
+      const div = o.shippingDivision || "Unknown"
+      if (!divisionMap[div]) divisionMap[div] = { orders: 0, revenue: 0 }
+      divisionMap[div].orders += 1
+      divisionMap[div].revenue += Number(o.total)
+    })
+    const salesByDivision = Object.entries(divisionMap)
+      .map(([division, stats]) => ({ division, ...stats }))
+      .sort((a, b) => b.revenue - a.revenue)
 
     // Order Status Bar Chart
     const statusCounts: Record<string, number> = {}
@@ -142,6 +164,7 @@ export async function GET(req: Request) {
         expensesByCategory: Object.entries(expensesByCategory).map(([name, value]) => ({ name, value })),
       },
       paymentData,
+      salesByDivision,
       statusData,
       revenueData,
       topProducts,
