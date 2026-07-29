@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       data: {
         status: "CONFIRMED",
         paymentStatus: "PAID",
-        payments: {
+        payment: {
           upsert: {
             where: { orderId },
             create: { method: "SSLCOMMERZ", status: "PAID", amount: order.total, transactionId: tran_id },
