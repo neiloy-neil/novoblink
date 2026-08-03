@@ -62,6 +62,6 @@ export const useCartStore = create<CartState>()(
         })),
       clearCart: () => set({ items: [] }),
     }),
-    { name: 'clothing-cart-storage' }
+    { name: 'novoblink-cart-storage' }
   )
 )

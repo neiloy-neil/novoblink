@@ -75,7 +75,7 @@ export default function ProductImportClient() {
           <p className="text-xs text-muted-foreground">Optional: slug, comparePrice, tags, stock, costPrice, variantPrice, imageUrl</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => {
-          const csv = ALL_COLS.join(",") + "\nExample T-Shirt,,1500,,Tops,,summer casual,TSHIRT-001,M,White,50,800,,https://...\n"
+          const csv = ALL_COLS.join(",") + "\nExample Wireless Earbuds,,2500,,Audio,,bluetooth tws,TWS-001,Black,Black,50,1200,,https://...\n"
           const blob = new Blob([csv], { type: "text/csv" })
           const url = URL.createObjectURL(blob)
           const a = document.createElement("a"); a.href = url; a.download = "product_import_template.csv"; a.click()

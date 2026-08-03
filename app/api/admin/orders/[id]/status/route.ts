@@ -18,11 +18,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     // Prevent rewinding past terminal states
     const TERMINAL = ["DELIVERED", "CANCELLED", "RETURNED"]
 
+    const current = await prisma.order.findUnique({ where: { id }, select: { status: true, total: true, paymentMethod: true } })
+
     if (status) {
       if (!VALID_STATUSES.includes(status)) {
         return NextResponse.json({ error: `Invalid status: ${status}` }, { status: 400 })
       }
-      const current = await prisma.order.findUnique({ where: { id }, select: { status: true } })
       if (current && TERMINAL.includes(current.status) && current.status !== status) {
         return NextResponse.json({ error: `Cannot change status from ${current.status}` }, { status: 400 })
       }
@@ -36,7 +37,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (paymentStatus) {
       updateData.paymentStatus = paymentStatus
       updateData.payment = {
-        update: { status: paymentStatus }
+        upsert: {
+          where: { orderId: id },
+          create: { method: current?.paymentMethod ?? "COD", status: paymentStatus, amount: current?.total ?? 0 },
+          update: { status: paymentStatus },
+        },
       }
     }
 

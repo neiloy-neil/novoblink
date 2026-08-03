@@ -6,6 +6,7 @@ import { useCartStore } from "@/store/useCartStore"
 import { useRouter } from "next/navigation"
 import { MapPin, CreditCard, ClipboardCheck, ChevronRight, Check, Gift, MessageSquare, User, Star, Wallet, Tag, Calendar, Users } from "lucide-react"
 import { trackInitiateCheckout, trackAddPaymentInfo } from "@/lib/analytics"
+import { BD_GEO } from "@/lib/bd-geo"
 
 type CheckoutField = {
   id: string
@@ -335,15 +336,47 @@ export default function CheckoutForm({
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Division *</label>
-                    <input required value={address.division} onChange={e => setAddress({ ...address, division: e.target.value })} className={inputCls} />
+                    <select
+                      required
+                      value={address.division}
+                      onChange={e => setAddress({ ...address, division: e.target.value, district: "", area: "" })}
+                      className={inputCls}
+                    >
+                      <option value="">Select Division</option>
+                      {BD_GEO.map(div => (
+                        <option key={div.name} value={div.name}>{div.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">District *</label>
-                    <input required value={address.district} onChange={e => setAddress({ ...address, district: e.target.value })} className={inputCls} />
+                    <select
+                      required
+                      value={address.district}
+                      onChange={e => setAddress({ ...address, district: e.target.value, area: "" })}
+                      className={inputCls}
+                      disabled={!address.division}
+                    >
+                      <option value="">Select District</option>
+                      {(BD_GEO.find(d => d.name === address.division)?.districts ?? []).map(d => (
+                        <option key={d.name} value={d.name}>{d.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Area / Thana *</label>
-                    <input required value={address.area} onChange={e => setAddress({ ...address, area: e.target.value })} className={inputCls} />
+                    <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Upazila / Thana *</label>
+                    <select
+                      required
+                      value={address.area}
+                      onChange={e => setAddress({ ...address, area: e.target.value })}
+                      className={inputCls}
+                      disabled={!address.district}
+                    >
+                      <option value="">Select Upazila / Thana</option>
+                      {(BD_GEO.find(d => d.name === address.division)?.districts.find(d => d.name === address.district)?.upazilas ?? []).map(u => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-1.5 md:col-span-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Full Address *</label>

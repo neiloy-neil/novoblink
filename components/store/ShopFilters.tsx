@@ -23,13 +23,11 @@ type Props = {
   }
 }
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL"]
 const COLORS = [
   { name: "Black", hex: "#000000" },
   { name: "White", hex: "#FFFFFF" },
-  { name: "Navy", hex: "#1e3a8a" },
-  { name: "Olive", hex: "#4d7c0f" },
-  { name: "Beige", hex: "#f5f5dc" },
+  { name: "Silver", hex: "#c0c0c0" },
+  { name: "Blue", hex: "#2563eb" },
   { name: "Red", hex: "#dc2626" },
   { name: "Grey", hex: "#6b7280" },
 ]
@@ -139,25 +137,6 @@ export default function ShopFilters({ categories, brands, current }: Props) {
           </ul>
         </div>
       )}
-
-      {/* Size */}
-      <div className="space-y-3">
-        <h4 className="font-bold text-xs uppercase tracking-widest text-novo-text-muted">Size</h4>
-        <div className="flex flex-wrap gap-2">
-          {SIZES.map((s) => {
-            const isActive = current.size === s
-            return (
-              <button
-                key={s}
-                onClick={() => navigate({ size: isActive ? "" : s })}
-                className={`border px-3 py-1.5 text-xs rounded-full transition-colors ${isActive ? "border-novo-black bg-novo-black text-white" : "border-novo-border hover:border-novo-blue text-novo-text-muted"}`}
-              >
-                {s}
-              </button>
-            )
-          })}
-        </div>
-      </div>
 
       {/* Color */}
       <div className="space-y-3">

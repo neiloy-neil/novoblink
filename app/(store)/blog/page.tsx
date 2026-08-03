@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = { title: "Blog", description: "Style tips, lookbooks and news" }
+export const metadata: Metadata = { title: "Blog", description: "Tech reviews, buying guides and news" }
 
 export default async function BlogPage() {
   const posts = await prisma.blogPost.findMany({
@@ -16,7 +16,7 @@ export default async function BlogPage() {
     <div className="bg-novo-bg min-h-screen">
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-heading font-bold text-novo-black mb-2">Journal</h1>
-        <p className="text-novo-text-muted mb-10">Style tips, lookbooks and stories</p>
+        <p className="text-novo-text-muted mb-10">Tech reviews, buying guides and stories</p>
 
         {posts.length === 0 && (
           <p className="text-novo-text-muted">No posts yet. Check back soon.</p>

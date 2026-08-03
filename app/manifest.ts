@@ -1,9 +1,9 @@
 ﻿import { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'NovoBlink — Wear Your Story',
+    name: 'NovoBlink — Your Tech Store',
     short_name: 'NovoBlink',
-    description: 'Premium fashion for the modern individual',
+    description: 'Bangladesh\'s premier online gadget store — smartphones, laptops, audio, and accessories.',
     start_url: '/',
     display: 'standalone',
     background_color: '#FAFAF8',

@@ -183,13 +183,13 @@ export default function RegisterPage() {
       {/* Image Side */}
       <div className="hidden md:block w-1/2 relative bg-novo-muted overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1920&auto=format&fit=crop"
-          alt="NovoBlink Fashion"
+          src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1920&auto=format&fit=crop"
+          alt="NovoBlink Tech Store"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute bottom-12 left-12 right-12 text-white">
-          <h2 className="text-4xl font-heading font-bold mb-4">Unapologetic Style.</h2>
+          <h2 className="text-4xl font-heading font-bold mb-4">Power Up Your Life.</h2>
           <p className="text-lg opacity-90">
             Sign up to get 10% off your first order and start earning NovoBlink Club points.
           </p>

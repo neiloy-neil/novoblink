@@ -90,7 +90,7 @@ export default function BundleForm({ bundleId }: { bundleId?: string }) {
           <div className="space-y-1 col-span-2">
             <label className="text-sm font-medium">Bundle Name *</label>
             <input value={name} onChange={e => { setName(e.target.value); if (!isEdit) setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")) }}
-              className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="e.g. Summer Outfit Set" />
+              className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="e.g. Home Office Bundle" />
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Slug *</label>

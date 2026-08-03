@@ -128,14 +128,14 @@ export default function LoginPage() {
       {/* Image Side */}
       <div className="hidden md:block w-1/2 relative bg-novo-muted overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop"
-          alt="NovoBlink Fashion"
+          src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop"
+          alt="NovoBlink Tech Store"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute bottom-12 left-12 right-12 text-white">
-          <h2 className="text-4xl font-heading font-bold mb-4">Wear Your Story.</h2>
-          <p className="text-lg opacity-90">Join the NovoBlink Club to earn points, get exclusive early access to drops, and manage your orders seamlessly.</p>
+          <h2 className="text-4xl font-heading font-bold mb-4">Your Tech, Delivered.</h2>
+          <p className="text-lg opacity-90">Join the NovoBlink Club to earn points, get exclusive deals on gadgets, and manage your orders seamlessly.</p>
         </div>
       </div>
 

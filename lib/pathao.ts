@@ -85,7 +85,7 @@ export async function createParcel(order: any) {
   const token = await getPathaoToken()
   
   // Format description
-  const description = order.items?.map((item: any) => `${item.productName} (${item.quantity})`).join(", ") || "Clothing Items"
+  const description = order.items?.map((item: any) => `${item.productName} (${item.quantity})`).join(", ") || "Products"
   
   // Try to parse city/zone/area as integers, fallback to 0 (which might fail validation on Pathao's side, but expected if mapped incorrectly)
   const cityId = parseInt(order.shippingDistrict) || 1 // 1 = Dhaka

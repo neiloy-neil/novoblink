@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X, Loader2 } from "lucide-react"
+import { BD_GEO } from "@/lib/bd-geo"
 
 interface AddressModalProps {
   isOpen: boolean
@@ -58,10 +59,18 @@ export default function AddressModal({ isOpen, onClose, onSaved, addressToEdit }
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked
       setFormData(prev => ({ ...prev, [name]: checked }))
+    } else if (name === "division") {
+      setFormData(prev => ({ ...prev, division: value, district: "", area: "" }))
+    } else if (name === "district") {
+      setFormData(prev => ({ ...prev, district: value, area: "" }))
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
   }
+
+  const selCls = "w-full bg-novo-muted border border-transparent focus:border-novo-blue focus:bg-white rounded-lg px-4 py-3 text-sm outline-none transition-all"
+  const currentDistricts = BD_GEO.find(d => d.name === formData.division)?.districts ?? []
+  const currentUpazilas = currentDistricts.find(d => d.name === formData.district)?.upazilas ?? []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -121,17 +130,26 @@ export default function AddressModal({ isOpen, onClose, onSaved, addressToEdit }
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Division</label>
-              <input required name="division" value={formData.division} onChange={handleChange} className="w-full bg-novo-muted border border-transparent focus:border-novo-blue focus:bg-white rounded-lg px-4 py-3 text-sm outline-none transition-all" />
+              <select required name="division" value={formData.division} onChange={handleChange} className={selCls}>
+                <option value="">Select Division</option>
+                {BD_GEO.map(div => <option key={div.name} value={div.name}>{div.name}</option>)}
+              </select>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">District / City</label>
-              <input required name="district" value={formData.district} onChange={handleChange} className="w-full bg-novo-muted border border-transparent focus:border-novo-blue focus:bg-white rounded-lg px-4 py-3 text-sm outline-none transition-all" />
+              <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">District</label>
+              <select required name="district" value={formData.district} onChange={handleChange} className={selCls} disabled={!formData.division}>
+                <option value="">Select District</option>
+                {currentDistricts.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
+              </select>
             </div>
 
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Area / Thana</label>
-              <input required name="area" value={formData.area} onChange={handleChange} className="w-full bg-novo-muted border border-transparent focus:border-novo-blue focus:bg-white rounded-lg px-4 py-3 text-sm outline-none transition-all" />
+              <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Upazila / Thana</label>
+              <select required name="area" value={formData.area} onChange={handleChange} className={selCls} disabled={!formData.district}>
+                <option value="">Select Upazila / Thana</option>
+                {currentUpazilas.map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
             </div>
 
             <div className="space-y-1.5 md:col-span-2">

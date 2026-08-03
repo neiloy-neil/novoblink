@@ -102,8 +102,14 @@ export default async function PackingSlipPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
+        <script dangerouslySetInnerHTML={{ __html: `
+          document.addEventListener("DOMContentLoaded", function() {
+            var btn = document.getElementById("print-btn");
+            if (btn) btn.addEventListener("click", function() { window.print(); });
+          });
+        `}} />
         <button
-          onClick={() => window.print()}
+          id="print-btn"
           style={{ position: "fixed", bottom: 20, right: 20, padding: "10px 20px", background: "#000", color: "#fff", border: "none", cursor: "pointer", fontSize: 13, fontWeight: "bold" }}
         >
           Print

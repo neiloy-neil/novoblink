@@ -15,7 +15,7 @@ interface SearchResult {
   category?: { name: string }
 }
 
-const POPULAR = ["White Shirt", "Chinos", "Kurti", "Tote Bag", "Polo"]
+const POPULAR = ["Smartphone", "Laptop", "TWS Earbuds", "Smart Watch", "Power Bank"]
 
 export default function SearchModal({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("")

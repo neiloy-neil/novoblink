@@ -36,7 +36,7 @@ async function getSenderAddress() {
   })
   const s = Object.fromEntries(rows.map((r) => [r.key, r.value]))
   const name = s.smtp_from_name || s.store_name || "NovoBlink"
-  const email = s.smtp_from_email || s.support_email || process.env.FROM_EMAIL || "noreply@NovoBlink.fashion"
+  const email = s.smtp_from_email || s.support_email || process.env.FROM_EMAIL || "noreply@novoblink.com.bd"
   return `${name} <${email}>`
 }
 
@@ -58,8 +58,8 @@ async function getStoreMeta() {
   return {
     name: map.store_name || "NovoBlink",
     logo: map.store_logo || "",
-    email: map.support_email || process.env.FROM_EMAIL || "noreply@NovoBlink.fashion",
-    url: map.store_url || process.env.NEXT_PUBLIC_SITE_URL || "https://NovoBlink.fashion",
+    email: map.support_email || process.env.FROM_EMAIL || "noreply@novoblink.com.bd",
+    url: map.store_url || process.env.NEXT_PUBLIC_SITE_URL || "https://novoblink.com.bd",
   }
 }
 

@@ -10,7 +10,7 @@ import {
   Zap, Percent, Tag, RotateCcw, Globe, Link2, MapPin, Layers, ScrollText,
   ShoppingBasket, Upload, CreditCard, Workflow, Wallet, Award, TrendingUp,
   Sliders, ChevronRight, Crown, Calendar, Warehouse, Download, LineChart, PieChart,
-  Search, ChevronDown, Mail, MessageSquare, Filter, Sparkles, TrendingDown,
+  Search, ChevronDown, Mail, MessageSquare, HelpCircle, Filter, Sparkles, TrendingDown,
 } from "lucide-react"
 
 type NavItem = { href: string; icon: any; label: string }
@@ -38,6 +38,7 @@ const navGroups: NavGroup[] = [
       { href: "/admin/orders/new", icon: PlusCircle, label: "New Order" },
       { href: "/admin/returns", icon: RotateCcw, label: "Returns & RMA" },
       { href: "/admin/reviews", icon: MessageSquare, label: "Reviews" },
+      { href: "/admin/qa", icon: HelpCircle, label: "Q&A" },
       { href: "/admin/abandoned-carts", icon: ShoppingBasket, label: "Abandoned Carts" },
     ],
   },

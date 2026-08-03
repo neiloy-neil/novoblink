@@ -91,7 +91,7 @@ export default function BlogAdminClient({ data }: { data: Post[] }) {
               </div>
               <div>
                 <label className="text-sm font-medium">Tags (comma-separated)</label>
-                <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="fashion, tips, style" />
+                <Input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} placeholder="tech, reviews, guide" />
               </div>
             </div>
             <div className="flex items-center gap-3">

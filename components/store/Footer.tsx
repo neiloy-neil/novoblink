@@ -84,7 +84,7 @@ export default function Footer({
               <li><Link href="/track" className="hover:text-novo-blue transition-colors">Track Order</Link></li>
               <li><Link href="/faq" className="hover:text-novo-blue transition-colors">FAQ & Shipping</Link></li>
               <li><Link href="/returns" className="hover:text-novo-blue transition-colors">Returns & Exchanges</Link></li>
-              <li><Link href="/size-guide" className="hover:text-novo-blue transition-colors">Size Guide</Link></li>
+              <li><Link href="/warranty" className="hover:text-novo-blue transition-colors">Warranty Policy</Link></li>
               <li><Link href="/contact" className="hover:text-novo-blue transition-colors">Contact Us</Link></li>
             </ul>
           </div>

@@ -5,8 +5,6 @@ import { toast } from "sonner"
 import { useCartStore } from "@/store/useCartStore"
 import { trackAddToCart } from "@/lib/analytics"
 import NotifyMeForm from "@/components/store/NotifyMeForm"
-import SizeGuideModal from "@/components/store/SizeGuideModal"
-import SizeQuiz from "@/components/store/SizeQuiz"
 
 export default function VariantSelector({
   product,
@@ -36,7 +34,7 @@ export default function VariantSelector({
   const isOutOfStock = stock === 0
 
   const addToCart = () => {
-    if (!activeVariant) return toast.error("Please select a size and color.")
+    if (!activeVariant) return toast.error("Please select a variant.")
     if (isOutOfStock) return toast.error("This item is currently out of stock.")
 
     const price = activeVariant.price ?? product.price
@@ -66,7 +64,7 @@ export default function VariantSelector({
       category: product.category?.name,
     })
 
-    toast.success(`Added to bag!`, {
+    toast.success(`Added to cart!`, {
       description: `${product.name} — ${selectedSize} / ${selectedColor}`,
     })
   }
@@ -117,10 +115,6 @@ export default function VariantSelector({
         <div className="space-y-3">
           <div className="flex items-baseline justify-between">
             <h3 className="text-xs font-bold uppercase tracking-widest text-novo-black">{attr1Label}</h3>
-            <div className="flex items-center gap-3">
-              <QuizButton />
-              {categoryId && <SizeGuideModal categoryId={categoryId} />}
-            </div>
           </div>
           <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
             {sizes.map(size => {
@@ -166,7 +160,7 @@ export default function VariantSelector({
             disabled={!activeVariant}
             className="w-full py-4 text-sm font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 bg-novo-black text-white hover:bg-novo-blue hover:shadow-lg hover:shadow-novo-blue/20"
           >
-            Add to Bag
+            Add to Cart
           </button>
         ) : (
           <NotifyMeForm variantId={activeVariant?.id || ""} />
@@ -180,24 +174,5 @@ export default function VariantSelector({
         )}
       </div>
     </div>
-  )
-}
-
-
-function QuizButton() {
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <button onClick={() => setOpen(true)} className="text-[11px] text-novo-text-muted hover:text-novo-black underline underline-offset-2 transition-colors">
-        Find my size
-      </button>
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => setOpen(false)}>
-          <div onClick={e => e.stopPropagation()}>
-            <SizeQuiz onClose={() => setOpen(false)} />
-          </div>
-        </div>
-      )}
-    </>
   )
 }
