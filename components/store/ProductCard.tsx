@@ -28,12 +28,16 @@ export default function ProductCard({
   const hoverVideo = firstImage.isVideo ? firstImage.videoUrl : (images[1]?.isVideo ? images[1]?.videoUrl : null)
 
   const isNew = (Date.now() - new Date(product.createdAt).getTime()) < 1000 * 60 * 60 * 24 * 7
-  const hasSale = !!product.comparePrice || !!flashSalePrice
+  // Prefer product-level comparePrice; fall back to first variant that has one
+  const variantComparePrice = product.variants?.find((v: any) => v.comparePrice)?.comparePrice
+  const effectiveComparePrice = product.comparePrice ?? variantComparePrice ?? null
+
+  const hasSale = !!effectiveComparePrice || !!flashSalePrice
   const hasFlashSale = !!flashSalePrice
   const displayPrice = flashSalePrice ?? Number(product.price)
   const isLowStock = product.variants?.reduce((acc: number, v: any) => acc + v.stock, 0) < 5
-  const discountPercent = product.comparePrice
-    ? Math.round(((Number(product.comparePrice) - Number(product.price)) / Number(product.comparePrice)) * 100)
+  const discountPercent = effectiveComparePrice
+    ? Math.round(((Number(effectiveComparePrice) - Number(product.price)) / Number(effectiveComparePrice)) * 100)
     : flashSalePrice
     ? Math.round(((Number(product.price) - flashSalePrice) / Number(product.price)) * 100)
     : 0
@@ -134,7 +138,7 @@ export default function ProductCard({
           {(hasSale || hasFlashSale) && (
             <>
               <span className="font-mono text-xs text-novo-text-muted line-through">
-                ৳{hasFlashSale ? Number(product.price).toLocaleString() : Number(product.comparePrice).toLocaleString()}
+                ৳{hasFlashSale ? Number(product.price).toLocaleString() : Number(effectiveComparePrice).toLocaleString()}
               </span>
               <span className="text-[10px] text-novo-success font-bold bg-novo-success/10 px-1.5 py-0.5 rounded">
                 -{discountPercent}%
