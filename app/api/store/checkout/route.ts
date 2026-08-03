@@ -79,11 +79,11 @@ export async function POST(req: Request) {
     const flashSaleMap = await getActiveFlashSaleBatch(
       variants.map(v => ({ id: v.product.id, categoryId: v.product.categoryId || "" }))
     ).catch(() => new Map())
-    // Build productId → effective price map
+    // Build variantId → effective price map (variant price overrides product base price)
     const effectivePriceMap = Object.fromEntries(
       variants.map(v => [
         v.id,
-        applyFlashSaleDiscount(Number(v.product.price), flashSaleMap.get(v.product.id) ?? null),
+        applyFlashSaleDiscount(Number(v.price ?? v.product.price), flashSaleMap.get(v.product.id) ?? null),
       ])
     )
 
