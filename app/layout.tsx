@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import Analytics from "@/components/Analytics";
 import prisma from "@/lib/prisma";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-heading" });
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="antialiased text-novo-text bg-novo-bg selection:bg-novo-blue/30">
+        <NextTopLoader color="#6600FF" height={3} showSpinner={false} shadow="0 0 10px #6600FF,0 0 5px #6600FF" />
         <Analytics />
         {children}
         <Toaster richColors position="bottom-right" />
