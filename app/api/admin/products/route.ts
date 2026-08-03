@@ -57,7 +57,8 @@ export async function POST(req: Request) {
             colorHex: v.colorHex,
             sku: v.sku,
             stock: v.stock,
-            price: v.price
+            price: v.price || null,
+            comparePrice: v.comparePrice || null,
           }))
         }
       }

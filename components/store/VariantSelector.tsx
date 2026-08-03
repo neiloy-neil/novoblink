@@ -56,6 +56,8 @@ export default function VariantSelector({
 
   const strikePrice = useMemo(() => {
     if (flashSale) return variantBasePrice
+    // Variant-level compare price takes priority over product-level
+    if (activeVariant?.comparePrice) return Number(activeVariant.comparePrice)
     if (comparePrice && !activeVariant?.price) return comparePrice
     return null
   }, [activeVariant, basePrice, comparePrice, flashSale, variantBasePrice])

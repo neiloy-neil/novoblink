@@ -173,17 +173,18 @@ model ProductImage {
 }
 
 model ProductVariant {
-  id        String  @id @default(cuid())
-  productId String
-  size      String
-  color     String
-  colorHex  String?
-  sku       String  @unique
-  stock     Int     @default(0)
-  price     Decimal?
-  costPrice Decimal @default(0)
-  minQty    Int?    // variant-level override
-  maxQty    Int?
+  id           String   @id @default(cuid())
+  productId    String
+  size         String
+  color        String
+  colorHex     String?
+  sku          String   @unique
+  stock        Int      @default(0)
+  price        Decimal?
+  comparePrice Decimal?
+  costPrice    Decimal  @default(0)
+  minQty       Int?     // variant-level override
+  maxQty       Int?
 
   product            Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems         OrderItem[]

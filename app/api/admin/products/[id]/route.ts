@@ -53,6 +53,26 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
+    // Sync variants: delete old, recreate with new data
+    if (Array.isArray(variants)) {
+      await prisma.productVariant.deleteMany({ where: { productId: id } })
+      if (variants.length > 0) {
+        await prisma.productVariant.createMany({
+          data: variants.map((v: any) => ({
+            productId: id,
+            size: v.size,
+            color: v.color,
+            colorHex: v.colorHex || null,
+            sku: v.sku,
+            stock: Number(v.stock) || 0,
+            price: v.price ? Number(v.price) : null,
+            comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
+            costPrice: Number(v.costPrice) || 0,
+          })),
+        })
+      }
+    }
+
     return NextResponse.json(product)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
