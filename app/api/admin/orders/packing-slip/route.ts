@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const d = new Date(order.createdAt)
     const dateStr = `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}/${d.getFullYear()}`
     const total = Number(order.total).toLocaleString("en-BD")
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(`${siteUrl}/track/${order.orderNumber}`)}`
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(`${siteUrl}/track?order=${order.orderNumber}`)}`
 
     const itemsHtml = order.items.map(item => `
       <div style="display:flex;align-items:center;padding:3px 0;border-bottom:1px solid #eee">

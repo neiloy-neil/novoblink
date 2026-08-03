@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Search, ShoppingBag, Check, Package, Truck, Home, Ban } from "lucide-react"
 import { toast } from "sonner"
@@ -16,7 +17,8 @@ const STATUS_META: Record<string, { label: string; icon: any }> = {
 }
 
 export default function TrackOrderPage() {
-  const [orderNumber, setOrderNumber] = useState("")
+  const searchParams = useSearchParams()
+  const [orderNumber, setOrderNumber] = useState(searchParams.get("order") || "")
   const [phone, setPhone] = useState("")
   const [loading, setLoading] = useState(false)
   const [order, setOrder] = useState<any>(null)

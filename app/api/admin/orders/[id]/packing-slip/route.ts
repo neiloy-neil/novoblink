@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const dateStr = `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`
   const total = Number(order.total).toLocaleString("en-BD")
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://novoblink.store"
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(`${siteUrl}/track/${order.orderNumber}`)}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(`${siteUrl}/track?order=${order.orderNumber}`)}`
 
   const itemsHtml = order.items.map(item => `
     <div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #eee">
