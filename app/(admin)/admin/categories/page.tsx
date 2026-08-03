@@ -14,6 +14,8 @@ export default async function CategoriesPage() {
     isActive: c.isActive,
     sortOrder: c.sortOrder,
     productCount: c._count.products,
+    image: c.image || "",
+    description: c.description || "",
     attr1Label: c.attributeConfig?.attr1Label || "Size",
     attr2Label: c.attributeConfig?.attr2Label || "Color",
     attr1Hint: c.attributeConfig?.attr1Hint || "",
