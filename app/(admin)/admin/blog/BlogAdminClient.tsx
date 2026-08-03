@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react"
+import { ImageUploadInput } from "@/components/admin/ImageUploadInput"
 
 type Post = { id: string; title: string; slug: string; authorName: string; isPublished: boolean; createdAt: string; category: { name: string } | null }
 
@@ -77,8 +78,8 @@ export default function BlogAdminClient({ data }: { data: Post[] }) {
               <Input value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} placeholder="Short description shown in listing..." />
             </div>
             <div>
-              <label className="text-sm font-medium">Cover Image URL</label>
-              <Input value={form.coverImage} onChange={e => setForm({ ...form, coverImage: e.target.value })} placeholder="https://..." />
+              <label className="text-sm font-medium">Cover Image</label>
+              <ImageUploadInput value={form.coverImage} onChange={(url) => setForm({ ...form, coverImage: url })} placeholder="Click or drag to upload cover image" />
             </div>
             <div>
               <label className="text-sm font-medium">Content (HTML)</label>

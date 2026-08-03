@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { PlusCircle, Trash2, ImagePlus, X, Upload, Link as LinkIcon, Loader2, Video } from "lucide-react"
+import { ImageUploadInput } from "@/components/admin/ImageUploadInput"
 import { toast } from "sonner"
 
 const productSchema = z.object({
@@ -270,16 +271,12 @@ export default function ProductForm({ initialData, categories }: { initialData?:
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">OG Image URL</label>
-                <input
-                  {...register("ogImage")}
-                  type="url"
-                  placeholder="https://... (leave blank to use first product image)"
-                  className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                <label className="text-sm font-medium">OG Image <span className="text-xs font-normal text-muted-foreground">(leave blank to use first product image)</span></label>
+                <ImageUploadInput
+                  value={watch("ogImage") || ""}
+                  onChange={(url) => setValue("ogImage", url)}
+                  placeholder="Click or drag to upload OG image"
                 />
-                {watch("ogImage") && (
-                  <img src={watch("ogImage")} alt="OG preview" className="mt-2 rounded border h-24 object-cover" />
-                )}
               </div>
             </CardContent>
           </Card>

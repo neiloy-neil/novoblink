@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { PlusCircle, Pencil, Trash2, ExternalLink, X } from "lucide-react"
+import { ImageUploadInput } from "@/components/admin/ImageUploadInput"
 import { toast } from "sonner"
 
 type Product = { id: string; name: string; price: number; images: { url: string }[] }
@@ -146,8 +147,8 @@ export default function BundlesClient({ data, products }: { data: Bundle[]; prod
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium">Cover Image URL</label>
-                <Input value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
+                <label className="text-sm font-medium">Cover Image</label>
+                <ImageUploadInput value={form.image} onChange={(url) => setForm({ ...form, image: url })} placeholder="Click or drag to upload cover image" />
               </div>
             </div>
             {form.type === "PICK_N" && (

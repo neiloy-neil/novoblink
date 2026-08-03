@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tag, Plus, Pencil, Trash2 } from "lucide-react"
+import { ImageUploadInput } from "@/components/admin/ImageUploadInput"
 
 type Category = {
   id: string; name: string; slug: string; isActive: boolean
@@ -131,8 +132,8 @@ export function CategoryClient({ data }: { data: Category[] }) {
               <Input value={catSlug} onChange={(e) => setCatSlug(e.target.value)} placeholder="kitchen-accessories" required />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium">Image URL</label>
-              <Input value={catImage} onChange={(e) => setCatImage(e.target.value)} placeholder="https://..." type="url" />
+              <label className="text-sm font-medium">Image</label>
+              <ImageUploadInput value={catImage} onChange={setCatImage} placeholder="Click or drag to upload category image" />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Description</label>
