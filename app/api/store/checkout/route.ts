@@ -352,6 +352,7 @@ export async function POST(req: Request) {
     if (toEmail) {
       sendOrderConfirmation({
         to: toEmail,
+        orderId: order.id,
         orderNumber: order.orderNumber,
         customerName: address.name,
         items: items.map((item: any) => ({

@@ -113,6 +113,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 type OrderEmailData = {
   to: string
+  orderId: string
   orderNumber: string
   customerName: string
   items: { productName: string; size: string; color: string; quantity: number; price: number }[]
@@ -181,7 +182,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
     <p class="muted">${data.shippingDistrict}, ${data.shippingDivision}</p>
     ${data.note ? `<div class="alert" style="margin-top:20px"><strong>Your note:</strong> ${data.note}</div>` : ""}
     ${data.giftWrap ? `<div class="alert" style="margin-top:16px">🎁 <strong>Gift wrapped</strong>${data.giftMessage ? ` — "${data.giftMessage}"` : ""}</div>` : ""}
-    <a href="${store.url}/account/orders" class="btn">Track your order →</a>`
+    <a href="${store.url}/order/${data.orderId}" class="btn">Track your order →</a>`
 
   await sendMail(data.to, `Order confirmed — ${data.orderNumber}`, baseTemplate(store, content))
 }
