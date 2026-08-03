@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Search, Heart, User, Menu, X, Zap } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCartStore } from "@/store/useCartStore"
@@ -29,13 +30,13 @@ function useCountdown(endsAt: string) {
 }
 
 export default function Navbar({
-  freeShippingThreshold = 1000,
+  freeShippingThreshold = null,
   storeName = "NovoBlink",
   storeTagline = "Wear Your Story",
   categories = [],
   activeFlashSale = null,
 }: {
-  freeShippingThreshold?: number
+  freeShippingThreshold?: number | null
   storeName?: string
   storeTagline?: string
   categories?: NavCategory[]
@@ -65,7 +66,7 @@ export default function Navbar({
             <Zap className="w-3 h-3 inline shrink-0" />
           </p>
         ) : (
-          <p>Free delivery on orders above ৳{freeShippingThreshold} 🚚</p>
+          <p>{freeShippingThreshold ? `Free delivery on orders above ৳${freeShippingThreshold} 🚚` : "Fast delivery across Bangladesh 🚚"}</p>
         )}
       </div>
 
@@ -80,9 +81,15 @@ export default function Navbar({
             >
               <Menu className="w-6 h-6" />
             </button>
-            <Link href="/" className="flex flex-col">
-              <span className="font-heading font-bold text-2xl md:text-3xl tracking-tight leading-none">{storeName}</span>
-              <span className="text-[10px] uppercase tracking-widest text-novo-text-muted leading-tight mt-0.5 hidden md:block">{storeTagline}</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="https://ybzrmqwumhrmhndwwpyv.supabase.co/storage/v1/object/public/product-images/logos/novoblink-horizontal.png"
+                alt={storeName}
+                width={200}
+                height={46}
+                priority
+                className="h-10 w-auto"
+              />
             </Link>
           </div>
 
@@ -143,7 +150,13 @@ export default function Navbar({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <span className="font-heading font-bold text-2xl">{storeName}</span>
+              <Image
+                src="https://ybzrmqwumhrmhndwwpyv.supabase.co/storage/v1/object/public/product-images/logos/novoblink-horizontal.png"
+                alt={storeName}
+                width={160}
+                height={37}
+                className="h-8 w-auto"
+              />
               <button onClick={() => setMobileOpen(false)}>
                 <X className="w-6 h-6" />
               </button>

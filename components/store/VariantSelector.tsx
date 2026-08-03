@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useCartStore } from "@/store/useCartStore"
 import { trackAddToCart } from "@/lib/analytics"
@@ -25,6 +26,7 @@ export default function VariantSelector({
 }) {
   const variants = product.variants || []
   const addItem = useCartStore((s) => s.addItem)
+  const router = useRouter()
 
   const rawSizes = Array.from(new Set(variants.map((v: any) => v.size))) as string[]
   // Sort by leading number so "1pcs < 2pcs Combo < 4pcs Combo" etc.
@@ -96,6 +98,13 @@ export default function VariantSelector({
     toast.success(`Added to cart!`, {
       description: `${product.name} — ${selectedSize} / ${selectedColor}`,
     })
+  }
+
+  const handleBuyNow = () => {
+    if (!activeVariant) return toast.error("Please select a variant.")
+    if (isOutOfStock) return toast.error("This item is currently out of stock.")
+    addToCart()
+    router.push("/checkout")
   }
 
   return (
@@ -200,15 +209,24 @@ export default function VariantSelector({
       )}
 
       {/* Action */}
-      <div className="pt-4 space-y-4">
+      <div className="pt-4 space-y-3">
         {!isOutOfStock ? (
-          <button
-            onClick={addToCart}
-            disabled={!activeVariant}
-            className="w-full py-4 text-sm font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 bg-novo-black text-white hover:bg-novo-blue hover:shadow-lg hover:shadow-novo-blue/20"
-          >
-            Add to Cart
-          </button>
+          <>
+            <button
+              onClick={handleBuyNow}
+              disabled={!activeVariant}
+              className="w-full py-4 text-sm font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 bg-[#6600FF] text-white hover:bg-[#5500DD] hover:shadow-lg hover:shadow-[#6600FF]/30 rounded-sm disabled:opacity-50"
+            >
+              Buy Now
+            </button>
+            <button
+              onClick={addToCart}
+              disabled={!activeVariant}
+              className="w-full py-4 text-sm font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 bg-novo-black text-white hover:bg-novo-blue hover:shadow-lg hover:shadow-novo-blue/20"
+            >
+              Add to Cart
+            </button>
+          </>
         ) : (
           <NotifyMeForm variantId={activeVariant?.id || ""} />
         )}

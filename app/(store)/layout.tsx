@@ -39,7 +39,7 @@ export default async function StoreLayout({
   ])
 
   const settingsMap = Object.fromEntries(settings.map((s) => [s.key, s.value]))
-  const freeShippingThreshold = settingsMap.free_shipping_above ? parseInt(settingsMap.free_shipping_above, 10) : 1000
+  const freeShippingThreshold = settingsMap.free_shipping_above ? parseInt(settingsMap.free_shipping_above, 10) : null
 
   const branding = {
     storeName: "NovoBlink",

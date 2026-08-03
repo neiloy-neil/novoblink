@@ -15,7 +15,7 @@ export async function resolveShippingCharge(district: string, subtotal: number):
   // Fall back to global setting
   const globalSetting = await prisma.setting.findUnique({ where: { key: "shipping_charge" } })
   const globalFree = await prisma.setting.findUnique({ where: { key: "free_shipping_above" } })
-  const freeAbove = Number(globalFree?.value || 1000)
-  if (subtotal >= freeAbove) return 0
+  const freeAbove = globalFree?.value ? Number(globalFree.value) : null
+  if (freeAbove !== null && subtotal >= freeAbove) return 0
   return Number(globalSetting?.value || 60)
 }

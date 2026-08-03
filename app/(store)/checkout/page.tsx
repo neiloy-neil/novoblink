@@ -18,7 +18,7 @@ export default async function CheckoutPage() {
   ])
 
   const map = Object.fromEntries(settings.map((s) => [s.key, s.value]))
-  const freeShippingThreshold = Number(map.free_shipping_above || 1000)
+  const freeShippingThreshold = map.free_shipping_above ? Number(map.free_shipping_above) : null
   const shippingChargeAmount = Number(map.shipping_charge || 60)
   const enabledMethods = map.enabled_payment_methods
     ? map.enabled_payment_methods.split(",").map((s) => s.trim())
