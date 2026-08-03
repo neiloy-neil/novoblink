@@ -39,6 +39,7 @@ export function SettingsClient({
 
   // General
   const [storeName, setStoreName] = useState(initialSettings["store_name"] || "")
+  const [storeUrl, setStoreUrl] = useState(initialSettings["store_url"] || "")
   const [storeTagline, setStoreTagline] = useState(initialSettings["store_tagline"] || "")
   const [storeDescription, setStoreDescription] = useState(initialSettings["store_description"] || "")
   const [supportEmail, setSupportEmail] = useState(initialSettings["support_email"] || "")
@@ -111,7 +112,7 @@ export function SettingsClient({
     setIsSaving(true)
     try {
       const ok = await patch({
-        store_name: storeName, store_tagline: storeTagline, store_description: storeDescription,
+        store_name: storeName, store_url: storeUrl, store_tagline: storeTagline, store_description: storeDescription,
         support_email: supportEmail, support_phone: supportPhone,
         social_facebook: socialFacebook, social_instagram: socialInstagram, social_tiktok: socialTiktok,
       })
@@ -257,6 +258,7 @@ export function SettingsClient({
               <CardHeader><CardTitle className="text-base">Store Identity</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <Field label="Store Name"><Input value={storeName} onChange={(e) => setStoreName(e.target.value)} /></Field>
+                <Field label="Store URL" hint="Used in email links — must match your live domain"><Input value={storeUrl} onChange={(e) => setStoreUrl(e.target.value)} placeholder="https://novoblink.store" /></Field>
                 <Field label="Tagline"><Input value={storeTagline} onChange={(e) => setStoreTagline(e.target.value)} placeholder="Wear Your Story" /></Field>
                 <Field label="Description">
                   <textarea value={storeDescription} onChange={(e) => setStoreDescription(e.target.value)} rows={3}
