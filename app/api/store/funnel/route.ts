@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { auth } from "@/lib/auth"
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,9 +11,8 @@ export async function POST(req: NextRequest) {
       sessionId = crypto.randomUUID()
     }
 
-    const session = await auth()
     prisma.funnelEvent.create({
-      data: { event, productId: productId || null, orderId: orderId || null, userId: session?.user?.id || null, sessionId, value: value || null }
+      data: { event, productId: productId || null, orderId: orderId || null, userId: null, sessionId, value: value || null }
     }).catch(() => {})
 
     const res = NextResponse.json({ success: true })

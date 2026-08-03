@@ -1,6 +1,8 @@
 ﻿import prisma from "@/lib/prisma"
 import { serialize } from "@/lib/utils"
 import { notFound } from "next/navigation"
+import { cache } from "react"
+import { unstable_cache } from "next/cache"
 import ProductGallery from "@/components/store/ProductGallery"
 import VariantSelector from "@/components/store/VariantSelector"
 import ProductCard from "@/components/store/ProductCard"
@@ -22,12 +24,62 @@ import ViewContentTracker from "@/components/store/ViewContentTracker"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://NovoBlink.com.bd"
 
+// Cross-request cache (Next.js Data Cache, 60s TTL)
+const _fetchProduct = unstable_cache(
+  async (slug: string) =>
+    prisma.product.findUnique({
+      where: { slug, isActive: true },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: "asc" } },
+        variants: { orderBy: { sku: "asc" } },
+        brand: true,
+        addons: { orderBy: { sortOrder: "asc" } },
+      },
+    }).catch(() => null),
+  ["product-detail"],
+  { revalidate: 60 }
+)
+
+// Request-level deduplication — metadata + page share one DB call per request
+const getProductBySlug = cache(_fetchProduct)
+
+// Cache reviews, flash sale, and related products per product (60s TTL)
+const getCachedProductPageData = unstable_cache(
+  async (productId: string, categoryId: string) => {
+    const [reviewAgg, flashSale, attrConfig, reviews, qas, relatedProducts] = await Promise.all([
+      prisma.review.aggregate({
+        where: { productId, isApproved: true },
+        _avg: { rating: true },
+        _count: { rating: true },
+      }).catch(() => ({ _avg: { rating: 0 }, _count: { rating: 0 } })),
+      getActiveFlashSale(productId, categoryId).catch(() => null),
+      prisma.categoryAttributeConfig.findUnique({ where: { categoryId } }).catch(() => null),
+      prisma.review.findMany({
+        where: { productId, isApproved: true },
+        include: { media: true },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }).catch(() => []),
+      prisma.reviewQA.findMany({
+        where: { productId },
+        orderBy: { createdAt: "desc" },
+      }).catch(() => []),
+      prisma.product.findMany({
+        where: { categoryId, id: { not: productId }, isActive: true },
+        take: 4,
+        include: { category: true, images: true, variants: true },
+      }).catch(() => []),
+    ])
+    return { reviewAgg, flashSale, attrConfig, reviews, qas, relatedProducts }
+  },
+  ["product-page-data"],
+  { revalidate: 60 }
+)
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const product = await prisma.product.findUnique({
-    where: { slug, isActive: true },
-    include: { images: { take: 1, orderBy: { sortOrder: "asc" } }, category: true },
-  }).catch(() => null)
+  const product = await getProductBySlug(slug)
 
   if (!product) return { title: "Product Not Found" }
 
@@ -50,58 +102,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  
-  const product = await prisma.product.findUnique({
-    where: { slug, isActive: true },
-    include: {
-      category: true,
-      images: { orderBy: { sortOrder: 'asc' } },
-      variants: { orderBy: { sku: 'asc' } },
-      brand: true,
-      addons: { orderBy: { sortOrder: 'asc' } },
-    }
-  }).catch(() => null)
+  const { slug } = await params
 
-  if (!product) {
-    notFound()
-  }
+  const product = await getProductBySlug(slug)
+  if (!product) notFound()
 
-  const [reviewAgg, flashSale, attrConfig, reviews, qas] = await Promise.all([
-    prisma.review.aggregate({
-      where: { productId: product.id, isApproved: true },
-      _avg: { rating: true },
-      _count: { rating: true },
-    }).catch(() => ({ _avg: { rating: 0 }, _count: { rating: 0 } })),
-    getActiveFlashSale(product.id, product.categoryId).catch(() => null),
-    prisma.categoryAttributeConfig.findUnique({
-      where: { categoryId: product.categoryId },
-    }).catch(() => null),
-    prisma.review.findMany({
-      where: { productId: product.id, isApproved: true },
-      include: { media: true },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    }).catch(() => []),
-    prisma.reviewQA.findMany({
-      where: { productId: product.id },
-      orderBy: { createdAt: 'desc' },
-    }).catch(() => []),
-  ])
+  const { reviewAgg, flashSale, attrConfig, reviews, qas, relatedProducts } =
+    await getCachedProductPageData(product.id, product.categoryId)
 
   const salePrice = flashSale ? applyFlashSaleDiscount(Number(product.price), flashSale) : null
   const displayPrice = salePrice ?? Number(product.price)
-
-  // Fetch related products
-  const relatedProducts = await prisma.product.findMany({
-    where: { 
-      categoryId: product.categoryId, 
-      id: { not: product.id },
-      isActive: true 
-    },
-    take: 4,
-    include: { category: true, images: true, variants: true }
-  }).catch(() => [])
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -178,7 +188,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     discountLabel={flashSale.discountType === "PERCENTAGE"
                       ? `${flashSale.discountValue}% off`
                       : `৳${flashSale.discountValue} off`}
-                    endsAt={flashSale.endsAt.toISOString()}
+                    endsAt={new Date(flashSale.endsAt).toISOString()}
                   />
                 </div>
               )}

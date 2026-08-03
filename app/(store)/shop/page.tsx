@@ -3,11 +3,51 @@ import ProductCard from "@/components/store/ProductCard"
 import { serialize } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
+import { unstable_cache } from "next/cache"
 
 import { getActiveFlashSaleBatch, applyFlashSaleDiscount } from "@/lib/flashSale"
 import ShopFilters from "@/components/store/ShopFilters"
 import ShopTopControls from "@/components/store/ShopTopControls"
 import SearchTracker from "@/components/store/SearchTracker"
+
+// Sidebar data barely changes — cache for 5 minutes
+const getCachedSidebar = unstable_cache(
+  async () => {
+    const [categories, brands] = await Promise.all([
+      prisma.category.findMany({ where: { isActive: true } }).catch(() => []),
+      prisma.brand.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }).catch(() => []),
+    ])
+    return { categories, brands }
+  },
+  ["shop-sidebar"],
+  { revalidate: 300 }
+)
+
+// Product listing cached per unique filter combination for 60 seconds
+const getCachedListing = unstable_cache(
+  async (whereStr: string, orderByStr: string, take: number) => {
+    const where = JSON.parse(whereStr)
+    const orderBy = JSON.parse(orderByStr)
+    const [products, totalProducts] = await Promise.all([
+      prisma.product.findMany({ where, include: { category: true, images: true, variants: true }, orderBy, take }).catch(() => []),
+      prisma.product.count({ where }).catch(() => 0),
+    ])
+    const productIds = products.map((p: any) => p.id)
+    const [flashEntries, reviewAggs] = await Promise.all([
+      getActiveFlashSaleBatch(products.map((p: any) => ({ id: p.id, categoryId: p.categoryId })))
+        .then(m => [...m.entries()]).catch(() => []),
+      prisma.review.groupBy({
+        by: ["productId"],
+        where: { productId: { in: productIds }, isApproved: true },
+        _avg: { rating: true },
+        _count: { rating: true },
+      }).catch(() => []),
+    ])
+    return { products, totalProducts, flashEntries, reviewAggs }
+  },
+  ["shop-listing"],
+  { revalidate: 60 }
+)
 
 export default async function ShopPage({
   searchParams,
@@ -65,29 +105,13 @@ export default async function ShopPage({
     if (color) where.variants.some.color = color
   }
 
-  const [products, totalProducts, categories, brands] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: { category: true, images: true, variants: true },
-      orderBy,
-      take,
-    }).catch(() => []),
-    prisma.product.count({ where }).catch(() => 0),
-    prisma.category.findMany({ where: { isActive: true } }).catch(() => []),
-    prisma.brand.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }).catch(() => []),
+  const [{ categories, brands }, { products, totalProducts, flashEntries, reviewAggs }] = await Promise.all([
+    getCachedSidebar(),
+    getCachedListing(JSON.stringify(where), JSON.stringify(orderBy), take),
   ])
 
   const hasMore = totalProducts > take
-
-  const [flashSaleMap, reviewAggs] = await Promise.all([
-    getActiveFlashSaleBatch(products.map((p: any) => ({ id: p.id, categoryId: p.categoryId }))).catch(() => new Map()),
-    prisma.review.groupBy({
-      by: ['productId'],
-      where: { productId: { in: products.map((p: any) => p.id) }, isApproved: true },
-      _avg: { rating: true },
-      _count: { rating: true },
-    }).catch(() => []),
-  ])
+  const flashSaleMap = new Map(flashEntries as [string, any][])
   const reviewMap = Object.fromEntries(reviewAggs.map((r: any) => [r.productId, r]))
 
   const current = { categoryId, brandId, size, color, sort, view, minPrice, maxPrice, sale: params.sale || "", search, take: params.take || "12" }
