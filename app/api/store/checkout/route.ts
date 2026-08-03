@@ -346,7 +346,9 @@ export async function POST(req: Request) {
     }
 
     // Send order confirmation email (fire-and-forget)
-    const toEmail = isGuest ? guestEmail : (verifiedUserId ? (await prisma.user.findUnique({ where: { id: verifiedUserId }, select: { email: true } }))?.email : null)
+    // Prefer the email typed at checkout; fall back to the account email from DB
+    const dbEmail = verifiedUserId ? (await prisma.user.findUnique({ where: { id: verifiedUserId }, select: { email: true } }))?.email : null
+    const toEmail = guestEmail || dbEmail
     if (toEmail) {
       sendOrderConfirmation({
         to: toEmail,
