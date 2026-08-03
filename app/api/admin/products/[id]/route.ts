@@ -53,23 +53,36 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
-    // Sync variants: delete old, recreate with new data
+    // Sync variants: upsert by SKU so existing order references are preserved
     if (Array.isArray(variants)) {
-      await prisma.productVariant.deleteMany({ where: { productId: id } })
-      if (variants.length > 0) {
-        await prisma.productVariant.createMany({
-          data: variants.map((v: any) => ({
-            productId: id,
-            size: v.size,
-            color: v.color,
-            colorHex: v.colorHex || null,
-            sku: v.sku,
-            stock: Number(v.stock) || 0,
-            price: v.price ? Number(v.price) : null,
-            comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
-            costPrice: Number(v.costPrice) || 0,
-          })),
-        })
+      const existing = await prisma.productVariant.findMany({ where: { productId: id } })
+      const existingBySku = new Map(existing.map(v => [v.sku, v]))
+      const incomingSkus = new Set(variants.map((v: any) => v.sku))
+
+      for (const v of variants) {
+        const data = {
+          size: v.size,
+          color: v.color,
+          colorHex: v.colorHex || null,
+          stock: Number(v.stock) || 0,
+          price: v.price ? Number(v.price) : null,
+          comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
+          costPrice: Number(v.costPrice) || 0,
+        }
+        const match = existingBySku.get(v.sku)
+        if (match) {
+          await prisma.productVariant.update({ where: { id: match.id }, data })
+        } else {
+          await prisma.productVariant.create({ data: { ...data, productId: id, sku: v.sku } })
+        }
+      }
+
+      // Delete removed variants only if no order items reference them
+      for (const v of existing) {
+        if (!incomingSkus.has(v.sku)) {
+          const refs = await prisma.orderItem.count({ where: { variantId: v.id } })
+          if (refs === 0) await prisma.productVariant.delete({ where: { id: v.id } })
+        }
       }
     }
 
