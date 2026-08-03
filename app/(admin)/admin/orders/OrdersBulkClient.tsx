@@ -90,7 +90,7 @@ export default function OrdersBulkClient({
 
   function printSelected() {
     for (const id of Array.from(selected)) {
-      window.open(`/admin/orders/${id}/packing-slip`, "_blank")
+      window.open(`/api/admin/orders/${id}/packing-slip`, "_blank")
     }
   }
 
