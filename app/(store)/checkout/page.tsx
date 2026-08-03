@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth"
 export default async function CheckoutPage() {
   const session = await auth()
   const userId = session?.user?.id
+  const userEmail = session?.user?.email ?? ""
 
   const [settings, checkoutFields, loyaltyData, creditData, shippingZones] = await Promise.all([
     prisma.setting.findMany({
@@ -64,6 +65,7 @@ export default async function CheckoutPage() {
           loyaltyMaxDiscount={loyaltyMaxDiscount}
           storeCreditBalance={storeCreditBalance}
           userId={userId}
+          userEmail={userEmail}
         />
       </div>
     </div>

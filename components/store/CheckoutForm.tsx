@@ -35,6 +35,55 @@ function resolveZoneRate(
   return matched ? { rate: matched.charge, freeAbove: matched.freeShippingAbove } : { rate: fallback, freeAbove: null }
 }
 
+function AccordionStep({
+  num, title, summary, children, activeStep, completedSteps, onOpen,
+}: {
+  num: number
+  title: string
+  summary?: string
+  children: React.ReactNode
+  activeStep: number
+  completedSteps: Set<number>
+  onOpen: (n: number) => void
+}) {
+  const isActive = activeStep === num
+  const isDone = completedSteps.has(num)
+  const isLocked = !isDone && num > activeStep
+
+  return (
+    <div className={`bg-white rounded-2xl overflow-hidden border transition-all duration-200 ${isActive ? "border-[#6600FF] shadow-lg shadow-[#6600FF]/10" : "border-novo-border"}`}>
+      <button
+        type="button"
+        onClick={() => !isLocked && onOpen(num)}
+        disabled={isLocked}
+        className={`w-full flex items-center gap-4 px-5 py-4 text-left ${!isLocked && !isActive ? "hover:bg-novo-muted/30 cursor-pointer" : "cursor-default"}`}
+      >
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+          isDone ? "bg-green-500 text-white" : isActive ? "bg-[#6600FF] text-white" : "bg-gray-100 text-gray-400"
+        }`}>
+          {isDone && !isActive ? <Check className="w-4 h-4" /> : num}
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className={`font-bold text-base leading-tight block ${isLocked ? "text-gray-400" : "text-novo-black"}`}>{title}</span>
+          {isDone && !isActive && summary && (
+            <span className="text-xs text-novo-text-muted truncate block mt-0.5">{summary}</span>
+          )}
+        </div>
+        {isDone && !isActive && (
+          <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-[#6600FF] uppercase tracking-widest">
+            <Edit2 className="w-3 h-3" /> Edit
+          </span>
+        )}
+      </button>
+      {isActive && (
+        <div className="border-t border-novo-border px-5 pt-5 pb-6 space-y-4">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function CheckoutForm({
   freeShippingThreshold = null,
   shippingChargeAmount = 60,
@@ -50,6 +99,7 @@ export default function CheckoutForm({
   loyaltyMaxDiscount = 0,
   storeCreditBalance = 0,
   userId,
+  userEmail = "",
 }: {
   freeShippingThreshold?: number | null
   shippingChargeAmount?: number
@@ -65,6 +115,7 @@ export default function CheckoutForm({
   loyaltyMaxDiscount?: number
   storeCreditBalance?: number
   userId?: string
+  userEmail?: string
 }) {
   const { items, clearCart } = useCartStore()
   const router = useRouter()
@@ -78,7 +129,7 @@ export default function CheckoutForm({
   const [address, setAddress] = useState({
     name: "", phone: "", division: "", district: "", area: "", fullAddress: "",
   })
-  const [guestEmail, setGuestEmail] = useState("")
+  const [guestEmail, setGuestEmail] = useState(userEmail)
   const [savedAddresses, setSavedAddresses] = useState<any[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
 
@@ -212,7 +263,7 @@ export default function CheckoutForm({
         body: JSON.stringify({
           items, address, paymentMethod, subtotal, shippingCharge, total,
           note: orderNote || null, giftWrap, giftMessage: giftWrap ? giftMessage : null,
-          giftWrapCharge: giftWrapAmount, isGuest: !userId, guestEmail: !userId ? guestEmail : null,
+          giftWrapCharge: giftWrapAmount, isGuest: !userId, guestEmail: guestEmail || null,
           userId: userId || null,
           loyaltyPointsRedeemed: redeemPoints ? Math.min(pointsToRedeem * 100, loyaltyBalance) : 0,
           loyaltyDiscount, storeCreditRedeemed: redeemCredit ? creditDiscount : 0,
@@ -266,49 +317,6 @@ export default function CheckoutForm({
 
   const inputCls = "w-full bg-novo-muted border border-transparent focus:border-[#6600FF] focus:bg-white rounded-xl px-4 py-3 text-sm outline-none transition-all"
 
-  // ── Reusable accordion step shell ──
-  const AccordionStep = ({
-    num, title, summary, children,
-  }: { num: number; title: string; summary?: string; children: React.ReactNode }) => {
-    const isActive = activeStep === num
-    const isDone = completedSteps.has(num)
-    const isLocked = !isDone && num > activeStep
-
-    return (
-      <div className={`bg-white rounded-2xl overflow-hidden border transition-all duration-200 ${isActive ? "border-[#6600FF] shadow-lg shadow-[#6600FF]/10" : "border-novo-border"}`}>
-        <button
-          type="button"
-          onClick={() => !isLocked && openStep(num)}
-          disabled={isLocked}
-          className={`w-full flex items-center gap-4 px-5 py-4 text-left ${!isLocked && !isActive ? "hover:bg-novo-muted/30 cursor-pointer" : "cursor-default"}`}
-        >
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
-            isDone ? "bg-green-500 text-white" : isActive ? "bg-[#6600FF] text-white" : "bg-gray-100 text-gray-400"
-          }`}>
-            {isDone && !isActive ? <Check className="w-4 h-4" /> : num}
-          </div>
-          <div className="flex-1 min-w-0">
-            <span className={`font-bold text-base leading-tight block ${isLocked ? "text-gray-400" : "text-novo-black"}`}>{title}</span>
-            {isDone && !isActive && summary && (
-              <span className="text-xs text-novo-text-muted truncate block mt-0.5">{summary}</span>
-            )}
-          </div>
-          {isDone && !isActive && (
-            <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-[#6600FF] uppercase tracking-widest">
-              <Edit2 className="w-3 h-3" /> Edit
-            </span>
-          )}
-        </button>
-
-        {isActive && (
-          <div className="border-t border-novo-border px-5 pt-5 pb-6 space-y-4">
-            {children}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
 
@@ -316,7 +324,7 @@ export default function CheckoutForm({
       <div className="w-full lg:w-[58%] space-y-3">
 
         {/* STEP 1 — Delivery */}
-        <AccordionStep num={1} title="Delivery Details" summary={step1Summary}>
+        <AccordionStep num={1} title="Delivery Details" summary={step1Summary} activeStep={activeStep} completedSteps={completedSteps} onOpen={openStep}>
           {savedAddresses.length > 0 && (
             <div className="flex flex-wrap gap-2 pb-4 border-b border-novo-border">
               <span className="text-xs text-novo-text-muted self-center font-medium">Saved:</span>
@@ -334,12 +342,10 @@ export default function CheckoutForm({
             </div>
           )}
 
-          {!userId && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Email (for order updates)</label>
-              <input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} className={inputCls} placeholder="you@example.com" />
-            </div>
-          )}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold uppercase tracking-widest text-novo-text-muted">Email (for order updates)</label>
+            <input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} className={inputCls} placeholder="you@example.com" />
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -390,7 +396,7 @@ export default function CheckoutForm({
         </AccordionStep>
 
         {/* STEP 2 — Payment */}
-        <AccordionStep num={2} title="Payment Method" summary={step2Labels[paymentMethod]}>
+        <AccordionStep num={2} title="Payment Method" summary={step2Labels[paymentMethod]} activeStep={activeStep} completedSteps={completedSteps} onOpen={openStep}>
           <div className="space-y-2.5">
             {enabledPaymentMethods.includes("COD") && (
               <label className={`flex items-start gap-3 p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === "COD" ? "border-[#6600FF] bg-[#6600FF]/5" : "border-novo-border hover:border-[#6600FF]/40"}`}>
@@ -439,7 +445,7 @@ export default function CheckoutForm({
         </AccordionStep>
 
         {/* STEP 3 — Review & Place Order */}
-        <AccordionStep num={3} title="Review & Place Order">
+        <AccordionStep num={3} title="Review & Place Order" activeStep={activeStep} completedSteps={completedSteps} onOpen={openStep}>
 
           {/* Items */}
           <div className="space-y-3">
