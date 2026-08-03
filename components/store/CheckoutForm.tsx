@@ -19,9 +19,21 @@ type CheckoutField = {
   sortOrder: number
 }
 
+type ShippingZone = { districts: string; charge: number; freeShippingAbove: number | null }
+
+function resolveZoneRate(district: string, zones: ShippingZone[], fallback: number): { rate: number; freeAbove: number | null } {
+  if (!district) return { rate: fallback, freeAbove: null }
+  const matched = zones.find(z =>
+    z.districts.split(",").map(d => d.trim().toLowerCase()).includes(district.trim().toLowerCase())
+  )
+  if (matched) return { rate: matched.charge, freeAbove: matched.freeShippingAbove }
+  return { rate: fallback, freeAbove: null }
+}
+
 export default function CheckoutForm({
   freeShippingThreshold = 1000,
   shippingChargeAmount = 60,
+  shippingZones = [],
   enabledPaymentMethods = ["COD", "BKASH", "NAGAD"],
   taxEnabled = false,
   taxRate = 0,
@@ -36,6 +48,7 @@ export default function CheckoutForm({
 }: {
   freeShippingThreshold?: number
   shippingChargeAmount?: number
+  shippingZones?: ShippingZone[]
   enabledPaymentMethods?: string[]
   taxEnabled?: boolean
   taxRate?: number
@@ -115,7 +128,9 @@ export default function CheckoutForm({
   }, [userId])
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
-  const shippingCharge = (subtotal >= freeShippingThreshold || appliedCoupon?.freeShipping) ? 0 : shippingChargeAmount
+  const { rate: zoneRate, freeAbove: zoneFreeAbove } = resolveZoneRate(address.district, shippingZones, shippingChargeAmount)
+  const effectiveFreeThreshold = zoneFreeAbove ?? freeShippingThreshold
+  const shippingCharge = (subtotal >= effectiveFreeThreshold || appliedCoupon?.freeShipping) ? 0 : zoneRate
   const taxAmount = taxEnabled ? Math.round((subtotal * taxRate) / 100) : 0
   const giftWrapAmount = giftWrap ? giftWrapCharge : 0
   const loyaltyDiscount = redeemPoints ? Math.min(pointsToRedeem, loyaltyMaxDiscount) : 0

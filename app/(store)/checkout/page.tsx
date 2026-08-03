@@ -7,13 +7,14 @@ export default async function CheckoutPage() {
   const session = await auth()
   const userId = session?.user?.id
 
-  const [settings, checkoutFields, loyaltyData, creditData] = await Promise.all([
+  const [settings, checkoutFields, loyaltyData, creditData, shippingZones] = await Promise.all([
     prisma.setting.findMany({
       where: { key: { in: ["free_shipping_above", "shipping_charge", "enabled_payment_methods", "tax_enabled", "tax_rate", "tax_label", "gift_wrap_enabled", "gift_wrap_charge", "loyalty_points_per_taka", "loyalty_redemption_rate"] } },
     }).catch(() => []),
     prisma.checkoutField.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }).catch(() => []),
     userId ? prisma.loyaltyPoint.aggregate({ where: { userId }, _sum: { points: true } }).catch(() => null) : null,
     userId ? prisma.storeCredit.findUnique({ where: { userId } }).catch(() => null) : null,
+    prisma.shippingZone.findMany({ where: { isActive: true }, select: { districts: true, charge: true, freeShippingAbove: true } }).catch(() => []),
   ])
 
   const map = Object.fromEntries(settings.map((s) => [s.key, s.value]))
@@ -51,6 +52,7 @@ export default async function CheckoutPage() {
         <CheckoutForm
           freeShippingThreshold={freeShippingThreshold}
           shippingChargeAmount={shippingChargeAmount}
+          shippingZones={shippingZones.map(z => ({ districts: z.districts, charge: Number(z.charge), freeShippingAbove: z.freeShippingAbove ? Number(z.freeShippingAbove) : null }))}
           enabledPaymentMethods={enabledMethods}
           taxEnabled={taxEnabled}
           taxRate={taxRate}
