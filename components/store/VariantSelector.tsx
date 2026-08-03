@@ -11,16 +11,28 @@ export default function VariantSelector({
   attr1Label = "Size",
   attr2Label = "Color",
   categoryId,
+  basePrice,
+  comparePrice,
+  flashSale,
 }: {
   product: any
   attr1Label?: string
   attr2Label?: string
   categoryId?: string
+  basePrice: number
+  comparePrice?: number | null
+  flashSale?: any | null
 }) {
   const variants = product.variants || []
   const addItem = useCartStore((s) => s.addItem)
 
-  const sizes = Array.from(new Set(variants.map((v: any) => v.size))) as string[]
+  const rawSizes = Array.from(new Set(variants.map((v: any) => v.size))) as string[]
+  // Sort by leading number so "1pcs < 2pcs Combo < 4pcs Combo" etc.
+  const sizes = rawSizes.sort((a: string, b: string) => {
+    const numA = parseInt(a) || 0
+    const numB = parseInt(b) || 0
+    return numA !== numB ? numA - numB : a.localeCompare(b)
+  })
   const colors = Array.from(new Set(variants.map((v: any) => v.color))) as string[]
 
   const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] || null)
@@ -32,6 +44,21 @@ export default function VariantSelector({
 
   const stock = activeVariant?.stock || 0
   const isOutOfStock = stock === 0
+
+  // Compute price that updates with variant selection
+  const variantBasePrice = activeVariant ? Number(activeVariant.price ?? basePrice) : basePrice
+  const currentPrice = useMemo(() => {
+    const vp = activeVariant ? Number(activeVariant.price ?? basePrice) : basePrice
+    if (!flashSale) return vp
+    if (flashSale.discountType === "PERCENTAGE") return Math.round(vp * (1 - Number(flashSale.discountValue) / 100))
+    return Math.max(0, vp - Number(flashSale.discountValue))
+  }, [activeVariant, basePrice, flashSale])
+
+  const strikePrice = useMemo(() => {
+    if (flashSale) return variantBasePrice
+    if (comparePrice && !activeVariant?.price) return comparePrice
+    return null
+  }, [activeVariant, basePrice, comparePrice, flashSale, variantBasePrice])
 
   const addToCart = () => {
     if (!activeVariant) return toast.error("Please select a variant.")
@@ -71,6 +98,24 @@ export default function VariantSelector({
 
   return (
     <div className="space-y-8">
+      {/* Dynamic price — updates on variant change */}
+      <div className="flex items-center gap-4">
+        <span className="font-mono text-2xl font-bold">৳{currentPrice.toLocaleString()}</span>
+        {strikePrice && strikePrice !== currentPrice && (
+          <span className="font-mono text-lg text-novo-text-muted line-through">
+            ৳{Math.round(strikePrice).toLocaleString()}
+          </span>
+        )}
+        {flashSale && (
+          <span className="bg-novo-error text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">
+            {flashSale.discountType === "PERCENTAGE" ? `${flashSale.discountValue}% off` : `৳${flashSale.discountValue} off`}
+          </span>
+        )}
+        {!flashSale && comparePrice && !activeVariant?.price && (
+          <span className="bg-novo-error/10 text-novo-error px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">Sale</span>
+        )}
+      </div>
+
       {/* Colors / Attribute 2 */}
       {colors.length > 0 && (
         <div className="space-y-3">

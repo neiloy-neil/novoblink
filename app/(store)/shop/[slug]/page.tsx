@@ -57,7 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     include: {
       category: true,
       images: { orderBy: { sortOrder: 'asc' } },
-      variants: true,
+      variants: { orderBy: { sku: 'asc' } },
       brand: true,
       addons: { orderBy: { sortOrder: 'asc' } },
     }
@@ -170,24 +170,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <span>({reviewAgg._count.rating} review{reviewAgg._count.rating === 1 ? "" : "s"})</span>
                 </div>
               )}
-              <div className="flex items-center gap-4">
-                <span className="font-mono text-2xl font-bold">৳{displayPrice.toLocaleString()}</span>
-                {(product.comparePrice || (flashSale && Number(product.price) !== displayPrice)) && (
-                  <span className="font-mono text-lg text-novo-text-muted line-through">
-                    ৳{flashSale ? Number(product.price).toLocaleString() : Number(product.comparePrice).toLocaleString()}
-                  </span>
-                )}
-                {flashSale && (
-                  <span className="bg-novo-error text-white px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">
-                    {flashSale.discountType === "PERCENTAGE"
-                      ? `${flashSale.discountValue}% off`
-                      : `৳${flashSale.discountValue} off`}
-                  </span>
-                )}
-                {!flashSale && product.comparePrice && (
-                  <span className="bg-novo-error/10 text-novo-error px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">Sale</span>
-                )}
-              </div>
+              {/* Price is rendered dynamically inside VariantSelector */}
               {flashSale && (
                 <div className="mt-4">
                   <FlashSaleCountdown
@@ -210,6 +193,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               attr1Label={attrConfig?.attr1Label || "Size"}
               attr2Label={attrConfig?.attr2Label || "Color"}
               categoryId={product.categoryId}
+              basePrice={Number(product.price)}
+              comparePrice={product.comparePrice ? Number(product.comparePrice) : null}
+              flashSale={flashSale ? serialize(flashSale) : null}
             />
 
             {/* Product Add-ons */}

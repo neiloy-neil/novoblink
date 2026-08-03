@@ -197,7 +197,7 @@ export default function ProductForm({ initialData, categories }: { initialData?:
             <CardHeader><CardTitle>Variants (Size & Color)</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {variantFields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-7 gap-2 items-end">
+                <div key={field.id} className="grid grid-cols-8 gap-2 items-end">
                   <div className="col-span-1 space-y-1">
                     <label className="text-xs">Size</label>
                     <input {...register(`variants.${index}.size`)} className="w-full rounded border px-2 py-1 text-sm" placeholder="M" />
@@ -210,9 +210,13 @@ export default function ProductForm({ initialData, categories }: { initialData?:
                     <label className="text-xs">Hex</label>
                     <input type="color" {...register(`variants.${index}.colorHex`)} className="w-full h-7 cursor-pointer rounded border p-0" />
                   </div>
-                  <div className="col-span-2 space-y-1">
+                  <div className="col-span-1 space-y-1">
                     <label className="text-xs">SKU</label>
                     <input {...register(`variants.${index}.sku`)} className="w-full rounded border px-2 py-1 text-sm" />
+                  </div>
+                  <div className="col-span-1 space-y-1">
+                    <label className="text-xs">Price</label>
+                    <input type="number" step="0.01" {...register(`variants.${index}.price`)} placeholder="Base" className="w-full rounded border px-2 py-1 text-sm" />
                   </div>
                   <div className="col-span-1 space-y-1">
                     <label className="text-xs">Stock</label>
