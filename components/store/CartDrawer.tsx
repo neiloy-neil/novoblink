@@ -24,7 +24,7 @@ type CartBump = {
   }
 }
 
-export default function CartDrawer({ itemCount: propItemCount, freeShippingThreshold = 1000 }: { itemCount?: number, freeShippingThreshold?: number }) {
+export default function CartDrawer({ itemCount: propItemCount, freeShippingThreshold }: { itemCount?: number, freeShippingThreshold?: number }) {
   const { items, removeItem, updateQuantity, addItem } = useCartStore()
   const [isOpen, setIsOpen] = useState(false)
   const [bump, setBump] = useState<CartBump | null>(null)
@@ -65,18 +65,20 @@ export default function CartDrawer({ itemCount: propItemCount, freeShippingThres
             <SheetTitle className="font-heading text-2xl">Your Bag</SheetTitle>
             <span className="text-xs uppercase tracking-widest text-novo-text-muted font-bold">{items.length} items</span>
           </div>
-          {/* Free Shipping Progress */}
-          <div className="mt-4 space-y-2">
-            <p className="text-xs text-novo-text-muted">
-              {subtotal >= freeShippingThreshold ? "You've unlocked free shipping!" : `Add ৳${freeShippingThreshold - subtotal} more for free shipping`}
-            </p>
-            <div className="w-full h-1 bg-novo-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-novo-blue transition-all duration-500"
-                style={{ width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%` }}
-              />
+          {/* Free Shipping Progress — only shown when free shipping is enabled */}
+          {freeShippingThreshold != null && (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs text-novo-text-muted">
+                {subtotal >= freeShippingThreshold ? "You've unlocked free shipping!" : `Add ৳${freeShippingThreshold - subtotal} more for free shipping`}
+              </p>
+              <div className="w-full h-1 bg-novo-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-novo-blue transition-all duration-500"
+                  style={{ width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </SheetHeader>
         
         <div className="flex-1 overflow-y-auto p-6">

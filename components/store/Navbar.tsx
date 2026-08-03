@@ -133,7 +133,7 @@ export default function Navbar({
               <User className="w-5 h-5 md:w-6 md:h-6" />
             </Link>
 
-            <CartDrawer itemCount={itemCount} freeShippingThreshold={freeShippingThreshold} />
+            <CartDrawer itemCount={itemCount} freeShippingThreshold={freeShippingThreshold ?? undefined} />
           </div>
 
         </div>
