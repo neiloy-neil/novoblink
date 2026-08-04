@@ -84,13 +84,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return { title: "Product Not Found" }
 
   const image = (product as any).ogImage || product.images[0]?.url
-  const price = Number(product.price).toLocaleString()
-  const title = (product as any).metaTitle || `${product.name} — ৳${price}`
+  const title = (product as any).metaTitle || `${product.name} | NovoBlink Bangladesh`
   const description = (product as any).metaDescription || product.description?.slice(0, 160) || `Shop ${product.name} at NovoBlink. Genuine products, fast delivery across Bangladesh.`
 
   return {
     title,
     description,
+    alternates: { canonical: `${SITE_URL}/shop/${slug}` },
     openGraph: {
       title,
       description,
@@ -113,7 +113,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const salePrice = flashSale ? applyFlashSaleDiscount(Number(product.price), flashSale) : null
   const displayPrice = salePrice ?? Number(product.price)
 
-  const jsonLd = {
+  // Compute true price range from variant prices (fall back to product price)
+  const variantPrices = product.variants.map((v) => Number(v.price ?? product.price))
+  const minVariantPrice = variantPrices.length ? Math.min(...variantPrices) : Number(product.price)
+  const maxVariantPrice = variantPrices.length ? Math.max(...variantPrices) : Number(product.price)
+
+  const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
@@ -131,18 +136,32 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "BDT",
-      lowPrice: Number(product.price),
-      highPrice: Number(product.comparePrice || product.price),
+      lowPrice: minVariantPrice,
+      highPrice: maxVariantPrice,
+      offerCount: product.variants.length,
       availability: product.variants.some((v) => v.stock > 0)
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: "NovoBlink" },
       url: `${SITE_URL}/shop/${product.slug}`,
     },
   }
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+      ...(product.category ? [{ "@type": "ListItem", position: 3, name: product.category.name, item: `${SITE_URL}/shop?categoryId=${product.categoryId}` }] : []),
+      { "@type": "ListItem", position: product.category ? 4 : 3, name: product.name, item: `${SITE_URL}/shop/${product.slug}` },
+    ],
+  }
+
   return (
     <div className="bg-novo-bg animate-in fade-in duration-500">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       {/* Breadcrumb - Minimal */}
       <div className="container mx-auto px-4 py-6 text-[10px] uppercase tracking-widest text-novo-text-muted">
@@ -160,7 +179,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           
           {/* Image Gallery - Split layout on desktop, stacked on mobile */}
           <div className="w-full lg:w-3/5">
-            <ProductGallery images={serialize(product.images)} />
+            <ProductGallery images={serialize(product.images)} productName={product.name} />
           </div>
 
           {/* Product Info */}

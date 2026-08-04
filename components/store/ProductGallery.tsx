@@ -14,7 +14,14 @@ function getEmbedUrl(videoUrl: string): { type: "youtube" | "vimeo" | "direct"; 
   return null
 }
 
-export default function ProductGallery({ images }: { images: any[] }) {
+function sanitizeAlt(raw: string | undefined, productName: string, index: number): string {
+  if (!raw || /^ChatGPT Image/i.test(raw) || /^\d{13,}/.test(raw)) {
+    return index === 0 ? productName : `${productName} — image ${index + 1}`
+  }
+  return raw
+}
+
+export default function ProductGallery({ images, productName = "Product" }: { images: any[]; productName?: string }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [playingVideo, setPlayingVideo] = useState(false)
   const [lightbox, setLightbox] = useState(false)
@@ -71,7 +78,7 @@ export default function ProductGallery({ images }: { images: any[] }) {
             <>
               <Image
                 src={activeImage}
-                alt="Product Image"
+                alt={sanitizeAlt(activeItem?.alt, productName, activeIndex)}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 cursor-zoom-in"
@@ -122,7 +129,7 @@ export default function ProductGallery({ images }: { images: any[] }) {
             onClick={() => handleThumbClick(idx)}
             className={`relative aspect-[3/4] w-20 md:w-full overflow-hidden transition-all snap-center rounded-sm ${activeIndex === idx ? "ring-1 ring-novo-black ring-offset-2 opacity-100" : "opacity-60 hover:opacity-100"}`}
           >
-            <Image src={img.url} alt={img.alt || "Thumbnail"} fill sizes="96px" className="object-cover" />
+            <Image src={img.url} alt={sanitizeAlt(img.alt, productName, idx)} fill sizes="96px" className="object-cover" />
             {img.isVideo && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 <Play className="w-5 h-5 text-white" fill="white" />

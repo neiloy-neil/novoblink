@@ -35,10 +35,13 @@ export default function VariantSelector({
     const numB = parseInt(b) || 0
     return numA !== numB ? numA - numB : a.localeCompare(b)
   })
-  const colors = Array.from(new Set(variants.map((v: any) => v.color))) as string[]
+  const rawColors = Array.from(new Set(variants.map((v: any) => v.color))) as string[]
+  // Hide color selector when the only option is a placeholder value like "Default"
+  const colors = rawColors.length === 1 && /^default$/i.test(rawColors[0]) ? [] : rawColors
 
   const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] || null)
-  const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] || null)
+  // Use rawColors[0] so the variant lookup still matches even when the color UI is hidden
+  const [selectedColor, setSelectedColor] = useState<string | null>(rawColors[0] || null)
 
   const activeVariant = useMemo(() => {
     return variants.find((v: any) => v.size === selectedSize && v.color === selectedColor)
@@ -60,9 +63,10 @@ export default function VariantSelector({
     if (flashSale) return variantBasePrice
     // Variant-level compare price takes priority over product-level
     if (activeVariant?.comparePrice) return Number(activeVariant.comparePrice)
-    if (comparePrice && !activeVariant?.price) return comparePrice
+    // Show product-level comparePrice whenever no variant-specific comparePrice exists
+    if (comparePrice) return comparePrice
     return null
-  }, [activeVariant, basePrice, comparePrice, flashSale, variantBasePrice])
+  }, [activeVariant, comparePrice, flashSale, variantBasePrice])
 
   const addToCart = () => {
     if (!activeVariant) return toast.error("Please select a variant.")
@@ -122,8 +126,10 @@ export default function VariantSelector({
             {flashSale.discountType === "PERCENTAGE" ? `${flashSale.discountValue}% off` : `৳${flashSale.discountValue} off`}
           </span>
         )}
-        {!flashSale && comparePrice && !activeVariant?.price && (
-          <span className="bg-novo-error/10 text-novo-error px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">Sale</span>
+        {!flashSale && strikePrice && strikePrice > currentPrice && (
+          <span className="bg-novo-error/10 text-novo-error px-2 py-1 text-xs font-bold rounded uppercase tracking-widest">
+            {Math.round(((strikePrice - currentPrice) / strikePrice) * 100)}% off
+          </span>
         )}
       </div>
 
@@ -226,6 +232,15 @@ export default function VariantSelector({
             >
               Add to Cart
             </button>
+            {/* COD & delivery reassurance */}
+            <div className="flex items-center justify-center gap-4 pt-1 text-xs text-novo-text-muted">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                Cash on Delivery available
+              </span>
+              <span>·</span>
+              <span>Delivered in 3–5 days</span>
+            </div>
           </>
         ) : (
           <NotifyMeForm variantId={activeVariant?.id || ""} />
