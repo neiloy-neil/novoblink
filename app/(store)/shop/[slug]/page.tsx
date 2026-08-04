@@ -84,13 +84,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return { title: "Product Not Found" }
 
   const image = (product as any).ogImage || product.images[0]?.url
-  const price = Number(product.price).toLocaleString()
-  const title = (product as any).metaTitle || `${product.name} — ৳${price}`
+  const title = (product as any).metaTitle || `${product.name} | NovoBlink Bangladesh`
   const description = (product as any).metaDescription || product.description?.slice(0, 160) || `Shop ${product.name} at NovoBlink. Genuine products, fast delivery across Bangladesh.`
 
   return {
     title,
     description,
+    alternates: { canonical: `${SITE_URL}/shop/${slug}` },
     openGraph: {
       title,
       description,
@@ -160,7 +160,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           
           {/* Image Gallery - Split layout on desktop, stacked on mobile */}
           <div className="w-full lg:w-3/5">
-            <ProductGallery images={serialize(product.images)} />
+            <ProductGallery images={serialize(product.images)} productName={product.name} />
           </div>
 
           {/* Product Info */}
