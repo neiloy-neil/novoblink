@@ -14,6 +14,7 @@ import { runWorkflows } from "@/lib/workflowEngine"
 import { auth } from "@/lib/auth"
 import { getActiveFlashSaleBatch, applyFlashSaleDiscount } from "@/lib/flashSale"
 import { rateLimit } from "@/lib/rateLimit"
+import { sendCAPIEvent } from "@/lib/capi"
 
 export async function POST(req: Request) {
   const limited = await rateLimit(req, "checkout")
@@ -349,6 +350,37 @@ export async function POST(req: Request) {
     // Prefer the email typed at checkout; fall back to the account email from DB
     const dbEmail = verifiedUserId ? (await prisma.user.findUnique({ where: { id: verifiedUserId }, select: { email: true } }))?.email : null
     const toEmail = guestEmail || dbEmail
+
+    // Meta CAPI — Purchase (server-side, fire-and-forget)
+    // event_id matches what the browser Pixel sends so Meta deduplicates the two signals
+    // cookieStore already populated above (affiliate block)
+    void sendCAPIEvent({
+      event_name: "Purchase",
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: order.id,
+      event_source_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://novoblink.store"}/checkout`,
+      user_data: {
+        email: toEmail || undefined,
+        phone: address.phone || undefined,
+        client_ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "",
+        client_user_agent: req.headers.get("user-agent") || "",
+        fbp: cookieStore.get("_fbp")?.value,
+        fbc: cookieStore.get("_fbc")?.value,
+      },
+      custom_data: {
+        currency: "BDT",
+        value: serverTotal,
+        content_type: "product",
+        content_ids: items.map((i: any) => variantMap[i.variantId]?.sku || i.variantId),
+        contents: items.map((i: any) => ({
+          id: variantMap[i.variantId]?.sku || i.variantId,
+          quantity: i.quantity,
+          item_price: effectivePriceMap[i.variantId],
+        })),
+        num_items: items.reduce((s: number, i: any) => s + i.quantity, 0),
+        order_id: order.orderNumber,
+      },
+    }).catch(() => {})
     if (toEmail) {
       sendOrderConfirmation({
         to: toEmail,
